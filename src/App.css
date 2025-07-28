@@ -1,5 +1,19 @@
 @import "tailwindcss";
 
+@theme {
+    --color-bg: #0e1a1a; /* background */
+    --color-surface: #122020; /* panel surface */
+    --color-border: #203030; /* panel borders */
+
+    --color-text: #b6e5dc; /* general text */
+    --color-heading: #50fae7; /* titles and labels */
+
+    --color-primary: #37f8b3; /* active highlights */
+    --color-danger: #e86262; /* error logs / critical */
+    --color-info: #4ecdc4; /* info logs / subtle indicators */
+    --color-muted: #6f9d94; /* less prominent / disabled */
+}
+
 :root {
     font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
     font-size: 16px;
