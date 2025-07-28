@@ -14,7 +14,8 @@
       {
         "title": "NaughtyBug HQ",
         "width": 1280,
-        "height": 728
+        "height": 728,
+        "decorations": false
       }
     ],
     "security": {
