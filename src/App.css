@@ -2,7 +2,8 @@
 
 @theme {
     --color-bg: #080e13;
-    --color-panels: #0c1419;
+    --color-panels: #080e13;
+    --color-header-bg: #0c1419;
     --color-border: #172225;
     --color-button-bg: #101a1f;
     --color-text: #bcd3ce;
@@ -26,4 +27,8 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -webkit-text-size-adjust: 100%;
+}
+
+.control-btn {
+    @apply w-20 h-16 bg-button-bg border border-border text-heading text-lg font-bold rounded-md hover:bg-heading/60 hover:text-bg transition flex items-center justify-center;
 }
