@@ -30,5 +30,5 @@
 }
 
 .control-btn {
-    @apply w-20 h-16 bg-button-bg border border-border text-heading text-lg font-bold rounded-md hover:bg-heading/60 hover:text-bg transition flex items-center justify-center;
+    @apply bg-button-bg border border-border text-heading text-lg font-bold rounded-md hover:bg-heading/60 hover:text-bg transition flex items-center justify-center;
 }
