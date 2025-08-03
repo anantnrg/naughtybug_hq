@@ -28,9 +28,9 @@ function App() {
                   Movement Control
                 </span>
               </div>
-              <div class="grid grid-cols-3 grid-rows-3  w-full h-full place-items-center px-[100px] py-14">
+              <div class="grid grid-cols-3 grid-rows-3  w-full h-full place-items-center px-[110px] py-14 gap-2">
                 <div></div>
-                <button class="control-btn w-20 h-16 ">
+                <button class="control-btn w-16 h-16 ">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="32"
@@ -86,7 +86,7 @@ function App() {
                     </path>
                   </svg>
                 </button>
-                <button class="control-btn w-16 h-12">
+                <button class="control-btn w-16 h-16">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="32"
@@ -133,7 +133,7 @@ function App() {
                 </button>
 
                 <div></div>
-                <button class="control-btn w-20 h-16 ">
+                <button class="control-btn w-16 h-16 ">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="32"
