@@ -1,13 +1,13 @@
 import "./App.css";
 
 // icons
-import { ReactComponent as ConnectedIcon } from "./assets/icons/connected.svg";
-import { ReactComponent as ArrowUp } from "./assets/icons/forward.svg";
-import { ReactComponent as ArrowDown } from "./assets/icons/backward.svg";
-import { ReactComponent as ArrowLeft } from "./assets/icons/left.svg";
-import { ReactComponent as ArrowRight } from "./assets/icons/right.svg";
-import { ReactComponent as StopIcon } from "./assets/icons/stop.svg";
-import { ReactComponent as Compass } from "./assets/compass.svg";
+import ConnectedIcon from "./assets/icons/connected.svg";
+import ArrowUp from "./assets/icons/forward.svg";
+import ArrowDown from "./assets/icons/backward.svg";
+import ArrowLeft from "./assets/icons/left.svg";
+import ArrowRight from "./assets/icons/right.svg";
+import StopIcon from "./assets/icons/stop.svg";
+import Compass from "./assets/compass.svg";
 
 function App() {
   return (
