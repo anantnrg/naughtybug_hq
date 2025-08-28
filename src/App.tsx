@@ -12,30 +12,26 @@ import Compass from "./assets/compass.svg";
 function App() {
   return (
     <main class="bg-bg h-screen w-screen flex flex-col p-3 items-center justify-center gap-y-3">
-      {/* HEADER */}
       <div class="w-full h-12 bg-header-bg border border-border flex items-center justify-between px-4">
         <span class="text-2xl text-heading uppercase font-semibold tracking-wider">
           NaughtyBug Core-x
         </span>
         <span class="text-lg text-heading uppercase flex gap-x-1 items-center justify-center">
-          <ConnectedIcon class="w-5" /> Connected
+          <ConnectedIcon class="w-5" />
+          <span>Connected</span>
         </span>
       </div>
 
-      {/* MAIN CONTENT */}
       <div class="w-full h-full flex gap-x-3">
-        {/* LEFT PANEL */}
         <div class="w-3/5 h-full flex flex-col gap-y-3">
           <div class="w-full h-full flex gap-x-3">
             <div class="w-full h-full bg-panels border border-border flex flex-col relative items-center ">
-              {/* MOVEMENT HEADER */}
               <div class="w-full h-12 bg-header-bg border-b border-border flex items-center px-4">
                 <span class="text-xl text-heading uppercase font-semibold tracking-wider">
                   Movement Control
                 </span>
               </div>
 
-              {/* MOVEMENT CONTROLS */}
               <div class="w-full h-full flex items-center justify-center">
                 <div class="grid grid-cols-3 grid-rows-3 w-auto h-auto place-items-center gap-2">
                   <div></div>
@@ -64,7 +60,6 @@ function App() {
                 </div>
               </div>
 
-              {/* COMPASS OVERLAY */}
               <div class="absolute z-10 pointer-events-none w-full h-full flex items-center justify-center pt-12">
                 <Compass class="w-[464px] h-[464px]" />
               </div>
@@ -72,7 +67,6 @@ function App() {
           </div>
         </div>
 
-        {/* RIGHT PANEL */}
         <div class="w-2/5 h-full flex flex-col gap-y-3">
           <div class="w-full h-1/2 bg-panels border border-border">
             <div class="w-full h-12 bg-header-bg border-b border-border flex items-center px-4">
