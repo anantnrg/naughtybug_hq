@@ -25,7 +25,7 @@ function App() {
       <div class="w-full h-full flex gap-x-3">
         <div class="w-3/5 h-full flex flex-col gap-y-3">
           <div class="w-full h-full flex gap-x-3">
-            <div class="w-full h-full bg-panels border border-border flex flex-col relative items-center ">
+            <div class="w-full h-full bg-panels border border-border flex flex-col relative items-center">
               <div class="w-full h-12 bg-header-bg border-b border-border flex items-center px-4">
                 <span class="text-xl text-heading uppercase font-semibold tracking-wider">
                   Movement Control
