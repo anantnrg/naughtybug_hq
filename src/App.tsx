@@ -1,6 +1,5 @@
 import "./App.css";
 
-// icons
 import ConnectedIcon from "./assets/icons/connected.svg";
 import ArrowUp from "./assets/icons/forward.svg";
 import ArrowDown from "./assets/icons/backward.svg";
@@ -8,11 +7,30 @@ import ArrowLeft from "./assets/icons/left.svg";
 import ArrowRight from "./assets/icons/right.svg";
 import StopIcon from "./assets/icons/stop.svg";
 import Compass from "./assets/compass.svg";
+import TurnLeft from "./assets/icons/turn_left.svg";
+import TurnRight from "./assets/icons/turn_right.svg";
 
-// our Panel wrapper
 import Panel from "./Panel";
+import { createSignal, onCleanup } from "solid-js";
 
 function App() {
+  const [shiftPressed, setShiftPressed] = createSignal(false);
+
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.shiftKey) setShiftPressed(true);
+  };
+  const handleKeyUp = (e: KeyboardEvent) => {
+    if (!e.shiftKey) setShiftPressed(false);
+  };
+
+  window.addEventListener("keydown", handleKeyDown);
+  window.addEventListener("keyup", handleKeyUp);
+
+  onCleanup(() => {
+    window.removeEventListener("keydown", handleKeyDown);
+    window.removeEventListener("keyup", handleKeyUp);
+  });
+
   return (
     <main class="bg-bg h-screen w-screen flex flex-col p-3 items-center justify-center gap-y-3">
       <div class="w-full h-12 bg-header-bg border border-border flex items-center justify-between px-4">
@@ -35,25 +53,33 @@ function App() {
               <div class="w-full h-full flex items-center justify-center">
                 <div class="grid grid-cols-3 grid-rows-3 w-auto h-auto place-items-center gap-2">
                   <div></div>
-                  <button class="control-btn w-24 h-20">
+                  <button class="control-btn w-24 h-20  focus:outline-none">
                     <ArrowUp class="w-8 h-8 text-text" />
                   </button>
                   <div></div>
 
-                  <button class="control-btn w-20 h-24">
-                    <ArrowLeft class="w-8 h-8 text-text" />
+                  <button class="control-btn w-20 h-24  focus:outline-none">
+                    {shiftPressed() ? (
+                      <TurnLeft class="w-7 h-7 text-text" />
+                    ) : (
+                      <ArrowLeft class="w-8 h-8 text-text" />
+                    )}
                   </button>
 
-                  <button class="control-btn w-24 h-24">
+                  <button class="control-btn w-24 h-24  focus:outline-none">
                     <StopIcon class="w-10 h-10 text-text" />
                   </button>
 
-                  <button class="control-btn w-20 h-24">
-                    <ArrowRight class="w-8 h-8 text-text" />
+                  <button class="control-btn w-20 h-24  focus:outline-none">
+                    {shiftPressed() ? (
+                      <TurnRight class="w-7 h-7 text-text" />
+                    ) : (
+                      <ArrowRight class="w-8 h-8 text-text" />
+                    )}
                   </button>
 
                   <div></div>
-                  <button class="control-btn w-24 h-20">
+                  <button class="control-btn w-24 h-20  focus:outline-none">
                     <ArrowDown class="w-8 h-8 text-text" />
                   </button>
                   <div></div>
