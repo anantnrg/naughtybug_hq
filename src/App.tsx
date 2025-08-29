@@ -13,7 +13,6 @@ import TurnRight from "./assets/icons/turn_right.svg";
 import Panel from "./Panel";
 import { createSignal, onCleanup } from "solid-js";
 import { invoke } from "@tauri-apps/api/core";
-import { send } from "vite";
 
 function App() {
   const sendCommand = async (cmd: string) => {
@@ -27,34 +26,56 @@ function App() {
 
   const [shiftPressed, setShiftPressed] = createSignal(false);
 
+  let activeCmd: string | null = null;
+  let queuedCmd: string | null = null;
+
+  const getCommandForKey = (e: KeyboardEvent): string | null => {
+    const key = e.key.toLowerCase();
+    if (key === "w") return "MOVE_FWD";
+    if (key === "s") return "MOVE_BWD";
+    if (key === "a") return e.shiftKey ? "TURN_LEFT" : "MOVE_LEFT";
+    if (key === "d") return e.shiftKey ? "TURN_RIGHT" : "MOVE_RIGHT";
+    return null;
+  };
+
   const handleKeyDown = (e: KeyboardEvent) => {
+    const cmd = getCommandForKey(e);
+    if (!cmd) return;
+
     if (e.shiftKey) setShiftPressed(true);
 
-    switch (e.key.toLowerCase()) {
-      case "w":
-        invoke("send_command", { cmd: "MOVE_FWD" });
-        break;
-      case "s":
-        invoke("send_command", { cmd: "MOVE_BWD" });
-        break;
-      case "a":
-        if (shiftPressed()) {
-          invoke("send_command", { cmd: "TURN_LEFT" });
-        } else {
-          invoke("send_command", { cmd: "MOVE_LEFT" });
-        }
-        break;
-      case "d":
-        if (shiftPressed()) {
-          invoke("send_command", { cmd: "TURN_RIGHT" });
-        } else {
-          invoke("send_command", { cmd: "MOVE_RIGHT" });
-        }
-        break;
+    if (!activeCmd) {
+      // nothing active → fire immediately
+      activeCmd = cmd;
+      sendCommand(cmd);
+    } else if (activeCmd !== cmd) {
+      // something already running → queue new one
+      queuedCmd = cmd;
+      console.log("Queued:", queuedCmd);
     }
   };
+
   const handleKeyUp = (e: KeyboardEvent) => {
+    const cmd = getCommandForKey(e);
+    if (!cmd) return;
+
     if (!e.shiftKey) setShiftPressed(false);
+
+    if (cmd === activeCmd) {
+      // release the active one → stop first
+      sendCommand("STOP");
+      activeCmd = null;
+
+      if (queuedCmd) {
+        // then execute queued one
+        activeCmd = queuedCmd;
+        sendCommand(activeCmd);
+        queuedCmd = null;
+      }
+    } else if (cmd === queuedCmd) {
+      // released a queued one before it got active → clear it
+      queuedCmd = null;
+    }
   };
 
   window.addEventListener("keydown", handleKeyDown);
@@ -88,7 +109,7 @@ function App() {
                 <div class="grid grid-cols-3 grid-rows-3 w-auto h-auto place-items-center gap-2">
                   <div></div>
                   <button
-                    class="control-btn w-24 h-20  focus:outline-none"
+                    class="control-btn w-24 h-20 focus:outline-none"
                     onClick={() => sendCommand("MOVE_FWD")}
                   >
                     <ArrowUp class="w-8 h-8 text-text" />
@@ -96,7 +117,7 @@ function App() {
                   <div></div>
 
                   <button
-                    class="control-btn w-20 h-24  focus:outline-none"
+                    class="control-btn w-20 h-24 focus:outline-none"
                     onClick={() =>
                       shiftPressed()
                         ? sendCommand("TURN_LEFT")
@@ -110,12 +131,12 @@ function App() {
                     )}
                   </button>
 
-                  <button class="control-btn w-24 h-24  focus:outline-none">
+                  <button class="control-btn w-24 h-24 focus:outline-none">
                     <StopIcon class="w-10 h-10 text-text" />
                   </button>
 
                   <button
-                    class="control-btn w-20 h-24  focus:outline-none"
+                    class="control-btn w-20 h-24 focus:outline-none"
                     onClick={() =>
                       shiftPressed()
                         ? sendCommand("TURN_RIGHT")
@@ -131,7 +152,7 @@ function App() {
 
                   <div></div>
                   <button
-                    class="control-btn w-24 h-20  focus:outline-none"
+                    class="control-btn w-24 h-20 focus:outline-none"
                     onClick={() => sendCommand("MOVE_BWD")}
                   >
                     <ArrowDown class="w-8 h-8 text-text" />
