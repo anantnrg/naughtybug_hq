@@ -29,6 +29,29 @@ function App() {
 
   const handleKeyDown = (e: KeyboardEvent) => {
     if (e.shiftKey) setShiftPressed(true);
+
+    switch (e.key.toLowerCase()) {
+      case "w":
+        invoke("send_command", { cmd: "MOVE_FWD" });
+        break;
+      case "s":
+        invoke("send_command", { cmd: "MOVE_BWD" });
+        break;
+      case "a":
+        if (shiftPressed()) {
+          invoke("send_command", { cmd: "TURN_LEFT" });
+        } else {
+          invoke("send_command", { cmd: "MOVE_LEFT" });
+        }
+        break;
+      case "d":
+        if (shiftPressed()) {
+          invoke("send_command", { cmd: "TURN_RIGHT" });
+        } else {
+          invoke("send_command", { cmd: "MOVE_RIGHT" });
+        }
+        break;
+    }
   };
   const handleKeyUp = (e: KeyboardEvent) => {
     if (!e.shiftKey) setShiftPressed(false);
