@@ -12,8 +12,19 @@ import TurnRight from "./assets/icons/turn_right.svg";
 
 import Panel from "./Panel";
 import { createSignal, onCleanup } from "solid-js";
+import { invoke } from "@tauri-apps/api/core";
+import { send } from "vite";
 
 function App() {
+  const sendCommand = async (cmd: string) => {
+    try {
+      await invoke("send_command", { cmd });
+      console.log("Sent:", cmd);
+    } catch (err) {
+      console.error("Error sending command:", err);
+    }
+  };
+
   const [shiftPressed, setShiftPressed] = createSignal(false);
 
   const handleKeyDown = (e: KeyboardEvent) => {
@@ -53,12 +64,22 @@ function App() {
               <div class="w-full h-full flex items-center justify-center">
                 <div class="grid grid-cols-3 grid-rows-3 w-auto h-auto place-items-center gap-2">
                   <div></div>
-                  <button class="control-btn w-24 h-20  focus:outline-none">
+                  <button
+                    class="control-btn w-24 h-20  focus:outline-none"
+                    onClick={() => sendCommand("MOVE_FWD")}
+                  >
                     <ArrowUp class="w-8 h-8 text-text" />
                   </button>
                   <div></div>
 
-                  <button class="control-btn w-20 h-24  focus:outline-none">
+                  <button
+                    class="control-btn w-20 h-24  focus:outline-none"
+                    onClick={() =>
+                      shiftPressed()
+                        ? sendCommand("TURN_LEFT")
+                        : sendCommand("MOVE_LEFT")
+                    }
+                  >
                     {shiftPressed() ? (
                       <TurnLeft class="w-7 h-7 text-text" />
                     ) : (
@@ -70,7 +91,14 @@ function App() {
                     <StopIcon class="w-10 h-10 text-text" />
                   </button>
 
-                  <button class="control-btn w-20 h-24  focus:outline-none">
+                  <button
+                    class="control-btn w-20 h-24  focus:outline-none"
+                    onClick={() =>
+                      shiftPressed()
+                        ? sendCommand("TURN_RIGHT")
+                        : sendCommand("MOVE_RIGHT")
+                    }
+                  >
                     {shiftPressed() ? (
                       <TurnRight class="w-7 h-7 text-text" />
                     ) : (
@@ -79,7 +107,10 @@ function App() {
                   </button>
 
                   <div></div>
-                  <button class="control-btn w-24 h-20  focus:outline-none">
+                  <button
+                    class="control-btn w-24 h-20  focus:outline-none"
+                    onClick={() => sendCommand("MOVE_BWD")}
+                  >
                     <ArrowDown class="w-8 h-8 text-text" />
                   </button>
                   <div></div>
