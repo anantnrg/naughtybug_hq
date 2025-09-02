@@ -13,6 +13,8 @@
     --color-danger: #c5654a;
     --color-info: #7adcca;
     --color-muted: #62827a;
+
+    --font-martian: "MartianMono NF";
 }
 
 :root {

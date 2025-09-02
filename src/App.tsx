@@ -9,6 +9,8 @@ import StopIcon from "./assets/icons/stop.svg";
 import Compass from "./assets/compass.svg";
 import TurnLeft from "./assets/icons/turn_left.svg";
 import TurnRight from "./assets/icons/turn_right.svg";
+import ChevronRightIcon from "./assets/icons/double_chevron_right.svg";
+import ReturnIcon from "./assets/icons/return.svg";
 
 import Panel from "./Panel";
 import { createSignal, onCleanup } from "solid-js";
@@ -80,6 +82,13 @@ function App() {
     window.removeEventListener("keydown", handleKeyDown);
     window.removeEventListener("keyup", handleKeyUp);
   });
+
+  const [logs, setLogs] = createSignal([
+    { level: "INFO", text: "Moving forward" },
+    { level: "ERROR", text: "Servo 5 not responding" },
+    { level: "INFO", text: "Pitch: 3.2°, Roll: -1.5°" },
+    { level: "CMD", text: "set gait trot" },
+  ]);
 
   return (
     <main class="bg-bg h-screen w-screen flex flex-col p-3 items-center justify-center gap-y-3">
@@ -179,14 +188,36 @@ function App() {
             {/* Add any children here */}
           </Panel>
           <Panel title="Terminal/Logs" class="h-1/2 flex flex-col">
-            <div class="h-full w-full flex flex-col overflow-y-scroll px-2" />
+            <div class="h-full w-full flex flex-col overflow-y-auto px-4 py-4 space-y-1 font-martian text-sm font-light gap-3">
+              {logs().map((log) => (
+                <span
+                  class={
+                    log.level === "CMD"
+                      ? "text-primary"
+                      : log.level === "ERROR"
+                        ? "text-danger"
+                        : "text-text"
+                  }
+                >
+                  [{log.level}] {log.text}
+                </span>
+              ))}
+            </div>
             <div class="w-full h-18 flex items-center justify-center p-2">
-              <input
-                type="text"
-                class="w-full h-full bg-header-bg text-text px-3 border border-border outline-0"
-                placeholder="ENTER A COMMAND"
-                spellcheck={false}
-              />
+              <div class="flex w-full h-full bg-header-bg text-text border border-border">
+                <div class="flex items-center pl-2">
+                  <ChevronRightIcon class="w-5 h-5 text-text" />
+                </div>
+                <input
+                  type="text"
+                  class="flex-1 h-full bg-header-bg text-text pr-3 pl-1 outline-0 caret-w-[3px] caret-text animate-caret-blink"
+                  placeholder="ENTER A COMMAND"
+                  spellcheck={false}
+                />
+                <div class="flex items-center pr-2">
+                  <ReturnIcon class="w-5 h-5 text-text" />
+                </div>
+              </div>
             </div>
           </Panel>
         </div>
