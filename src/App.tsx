@@ -90,6 +90,8 @@ function App() {
     { level: "CMD", text: "set gait trot" },
   ]);
 
+  const [connected, setConnected] = createSignal(false);
+
   return (
     <main class="bg-bg h-screen w-screen flex flex-col p-3 items-center justify-center gap-y-3">
       <div class="w-full h-12 bg-header-bg border border-border flex items-center justify-between px-4">
