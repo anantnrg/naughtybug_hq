@@ -45,11 +45,9 @@ function App() {
     if (e.shiftKey) setShiftPressed(true);
 
     if (!activeCmd) {
-      // nothing active → fire immediately
       activeCmd = cmd;
       sendCommand(cmd);
     } else if (activeCmd !== cmd) {
-      // something already running → queue new one
       queuedCmd = cmd;
       console.log("Queued:", queuedCmd);
     }
@@ -62,18 +60,15 @@ function App() {
     if (!e.shiftKey) setShiftPressed(false);
 
     if (cmd === activeCmd) {
-      // release the active one → stop first
       sendCommand("STOP");
       activeCmd = null;
 
       if (queuedCmd) {
-        // then execute queued one
         activeCmd = queuedCmd;
         sendCommand(activeCmd);
         queuedCmd = null;
       }
     } else if (cmd === queuedCmd) {
-      // released a queued one before it got active → clear it
       queuedCmd = null;
     }
   };
@@ -110,7 +105,9 @@ function App() {
                   <div></div>
                   <button
                     class="control-btn w-24 h-20 focus:outline-none"
-                    onClick={() => sendCommand("MOVE_FWD")}
+                    onMouseDown={() => sendCommand("MOVE_FWD")}
+                    onMouseUp={() => sendCommand("STOP")}
+                    onMouseLeave={() => sendCommand("STOP")}
                   >
                     <ArrowUp class="w-8 h-8 text-text" />
                   </button>
@@ -118,11 +115,13 @@ function App() {
 
                   <button
                     class="control-btn w-20 h-24 focus:outline-none"
-                    onClick={() =>
+                    onMouseDown={() =>
                       shiftPressed()
                         ? sendCommand("TURN_LEFT")
                         : sendCommand("MOVE_LEFT")
                     }
+                    onMouseUp={() => sendCommand("STOP")}
+                    onMouseLeave={() => sendCommand("STOP")}
                   >
                     {shiftPressed() ? (
                       <TurnLeft class="w-7 h-7 text-text" />
@@ -131,17 +130,22 @@ function App() {
                     )}
                   </button>
 
-                  <button class="control-btn w-24 h-24 focus:outline-none">
+                  <button
+                    class="control-btn w-24 h-24 focus:outline-none"
+                    onClick={() => sendCommand("STOP")}
+                  >
                     <StopIcon class="w-10 h-10 text-text" />
                   </button>
 
                   <button
                     class="control-btn w-20 h-24 focus:outline-none"
-                    onClick={() =>
+                    onMouseDown={() =>
                       shiftPressed()
                         ? sendCommand("TURN_RIGHT")
                         : sendCommand("MOVE_RIGHT")
                     }
+                    onMouseUp={() => sendCommand("STOP")}
+                    onMouseLeave={() => sendCommand("STOP")}
                   >
                     {shiftPressed() ? (
                       <TurnRight class="w-7 h-7 text-text" />
@@ -153,7 +157,9 @@ function App() {
                   <div></div>
                   <button
                     class="control-btn w-24 h-20 focus:outline-none"
-                    onClick={() => sendCommand("MOVE_BWD")}
+                    onMouseDown={() => sendCommand("MOVE_BWD")}
+                    onMouseUp={() => sendCommand("STOP")}
+                    onMouseLeave={() => sendCommand("STOP")}
                   >
                     <ArrowDown class="w-8 h-8 text-text" />
                   </button>

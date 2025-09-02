@@ -25,7 +25,7 @@ async fn send_command(cmd: String) -> Result<(), String> {
     let mut ws_opt = WS_CONNECTION.lock().await;
 
     if ws_opt.is_none() {
-        let (ws_stream, _) = connect_async("ws://127.0.0.1:9001")
+        let (ws_stream, _) = connect_async("ws://192.168.4.1:81/")
             .await
             .map_err(|e| e.to_string())?;
         *ws_opt = Some(ws_stream);
