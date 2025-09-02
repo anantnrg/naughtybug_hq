@@ -178,8 +178,16 @@ function App() {
           <Panel title="System Info" class="h-1/2">
             {/* Add any children here */}
           </Panel>
-          <Panel title="Terminal/Logs" class="h-1/2">
-            {/* Add any children here */}
+          <Panel title="Terminal/Logs" class="h-1/2 flex flex-col">
+            <div class="h-full w-full flex flex-col overflow-y-scroll px-2" />
+            <div class="w-full h-18 flex items-center justify-center p-2">
+              <input
+                type="text"
+                class="w-full h-full bg-header-bg text-text px-3 border border-border outline-0"
+                placeholder="ENTER A COMMAND"
+                spellcheck={false}
+              />
+            </div>
           </Panel>
         </div>
       </div>
