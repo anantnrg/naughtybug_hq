@@ -1,6 +1,7 @@
 import "./App.css";
 
 import ConnectedIcon from "./assets/icons/connected.svg";
+import DisconnectedIcon from "./assets/icons/disconnected.svg";
 import ArrowUp from "./assets/icons/forward.svg";
 import ArrowDown from "./assets/icons/backward.svg";
 import ArrowLeft from "./assets/icons/left.svg";
@@ -15,8 +16,15 @@ import ReturnIcon from "./assets/icons/return.svg";
 import Panel from "./Panel";
 import { createSignal, onCleanup } from "solid-js";
 import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
 
 function App() {
+  const [connected, setConnected] = createSignal(false);
+
+  listen<boolean>("connected", (e) => {
+    setConnected(e.payload);
+  });
+
   const sendCommand = async (cmd: string) => {
     try {
       await invoke("send_command", { cmd });
@@ -90,18 +98,23 @@ function App() {
     { level: "CMD", text: "set gait trot" },
   ]);
 
-  const [connected, setConnected] = createSignal(false);
-
   return (
     <main class="bg-bg h-screen w-screen flex flex-col p-3 items-center justify-center gap-y-3">
       <div class="w-full h-12 bg-header-bg border border-border flex items-center justify-between px-4">
         <span class="text-2xl text-heading uppercase font-semibold tracking-wider">
           NaughtyBug Core-x
         </span>
-        <span class="text-lg text-heading uppercase flex gap-x-1 items-center justify-center">
-          <ConnectedIcon class="w-5" />
-          <span>Connected</span>
-        </span>
+        {connected() ? (
+          <span class="text-lg text-heading uppercase flex gap-x-1 items-center justify-center">
+            <ConnectedIcon class="w-5" />
+            <span>Connected</span>
+          </span>
+        ) : (
+          <span class="text-lg text-danger uppercase flex gap-x-1 items-center justify-center">
+            <DisconnectedIcon class="w-5" />
+            <span>Disconnected</span>
+          </span>
+        )}
       </div>
 
       <div class="w-full h-full flex gap-x-3">

@@ -5,6 +5,7 @@ use tokio::sync::Mutex;
 use futures_util::sink::SinkExt;
 use std::sync::Arc;
 use tokio_tungstenite::tungstenite::protocol::Message;
+use tauri::{AppHandle, Emitter};
 
 lazy_static! {
     static ref WS_CONNECTION: Arc<Mutex<Option<WebSocketStream<MaybeTlsStream<TcpStream>>>>> =
@@ -22,7 +23,7 @@ pub fn run() {
 }
 
 #[tauri::command]
-async fn connect() -> Result<(), String> {
+async fn connect(app: AppHandle) -> Result<(), String> {
     let mut ws_opt = WS_CONNECTION.lock().await;
 
     if ws_opt.is_none() {
@@ -30,6 +31,7 @@ async fn connect() -> Result<(), String> {
             .await
             .map_err(|e| e.to_string())?;
         *ws_opt = Some(ws_stream);
+        app.emit("connected", true).map_err(|e| e.to_string())?;
     }
 
     Ok(())
