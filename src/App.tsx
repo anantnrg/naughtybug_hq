@@ -210,7 +210,7 @@ function App() {
                 </div>
                 <input
                   type="text"
-                  class="flex-1 h-full bg-header-bg text-text pr-3 pl-1 outline-0 caret-w-[3px] caret-text animate-caret-blink"
+                  class="flex-1 h-full bg-header-bg text-text pr-3 pl-2 outline-0 caret-w-[3px] caret-text animate-caret-blink"
                   placeholder="ENTER A COMMAND"
                   spellcheck={false}
                 />
