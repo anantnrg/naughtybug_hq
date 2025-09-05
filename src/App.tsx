@@ -41,12 +41,14 @@ function App() {
 
   const getCommandForKey = (e: KeyboardEvent): string | null => {
     const key = e.key.toLowerCase();
-    if (key === "w") return "MOVE_FWD";
-    if (key === "s") return "MOVE_BWD";
-    if (key === "a") return e.shiftKey ? "TURN_LEFT" : "MOVE_LEFT";
-    if (key === "d") return e.shiftKey ? "TURN_RIGHT" : "MOVE_RIGHT";
+    if (key === "w") return "move forward";
+    if (key === "s") return "move backward";
+    if (key === "a") return e.shiftKey ? "turn left" : "move left";
+    if (key === "d") return e.shiftKey ? "turn right" : "move right";
     return null;
   };
+
+  let inputRef: HTMLInputElement | undefined;
 
   const handleKeyDown = (e: KeyboardEvent) => {
     const cmd = getCommandForKey(e);
@@ -70,7 +72,7 @@ function App() {
     if (!e.shiftKey) setShiftPressed(false);
 
     if (cmd === activeCmd) {
-      sendCommand("STOP");
+      sendCommand("stop");
       activeCmd = null;
 
       if (queuedCmd) {
@@ -83,10 +85,20 @@ function App() {
     }
   };
 
+  const handleInputKeyDown = (e: KeyboardEvent) => {
+    if (e.key === "Enter" && inputRef && inputRef.value.trim() !== "") {
+      const cmd = inputRef.value.trim();
+      sendCommand(cmd);
+      setLogs((prev) => [...prev, { level: "CMD", text: cmd }]);
+      inputRef.value = "";
+    }
+  };
+
   window.addEventListener("keydown", handleKeyDown);
   window.addEventListener("keyup", handleKeyUp);
 
-  onCleanup(() => {3
+  onCleanup(() => {
+    3;
     window.removeEventListener("keydown", handleKeyDown);
     window.removeEventListener("keyup", handleKeyUp);
   });
@@ -139,9 +151,9 @@ function App() {
                   <div></div>
                   <button
                     class="control-btn w-24 h-20 focus:outline-none"
-                    onMouseDown={() => sendCommand("MOVE_FWD")}
-                    onMouseUp={() => sendCommand("STOP")}
-                    onMouseLeave={() => sendCommand("STOP")}
+                    onMouseDown={() => sendCommand("move forward")}
+                    onMouseUp={() => sendCommand("stop")}
+                    onMouseLeave={() => sendCommand("stop")}
                   >
                     <ArrowUp class="w-8 h-8 text-text" />
                   </button>
@@ -151,11 +163,11 @@ function App() {
                     class="control-btn w-20 h-24 focus:outline-none"
                     onMouseDown={() =>
                       shiftPressed()
-                        ? sendCommand("TURN_LEFT")
-                        : sendCommand("MOVE_LEFT")
+                        ? sendCommand("turn left")
+                        : sendCommand("move left")
                     }
-                    onMouseUp={() => sendCommand("STOP")}
-                    onMouseLeave={() => sendCommand("STOP")}
+                    onMouseUp={() => sendCommand("stop")}
+                    onMouseLeave={() => sendCommand("stop")}
                   >
                     {shiftPressed() ? (
                       <TurnLeft class="w-7 h-7 text-text" />
@@ -166,7 +178,7 @@ function App() {
 
                   <button
                     class="control-btn w-24 h-24 focus:outline-none"
-                    onClick={() => sendCommand("STOP")}
+                    onClick={() => sendCommand("stop")}
                   >
                     <StopIcon class="w-10 h-10 text-text" />
                   </button>
@@ -175,11 +187,11 @@ function App() {
                     class="control-btn w-20 h-24 focus:outline-none"
                     onMouseDown={() =>
                       shiftPressed()
-                        ? sendCommand("TURN_RIGHT")
-                        : sendCommand("MOVE_RIGHT")
+                        ? sendCommand("turn right")
+                        : sendCommand("move right")
                     }
-                    onMouseUp={() => sendCommand("STOP")}
-                    onMouseLeave={() => sendCommand("STOP")}
+                    onMouseUp={() => sendCommand("stop")}
+                    onMouseLeave={() => sendCommand("stop")}
                   >
                     {shiftPressed() ? (
                       <TurnRight class="w-7 h-7 text-text" />
@@ -191,9 +203,9 @@ function App() {
                   <div></div>
                   <button
                     class="control-btn w-24 h-20 focus:outline-none"
-                    onMouseDown={() => sendCommand("MOVE_BWD")}
-                    onMouseUp={() => sendCommand("STOP")}
-                    onMouseLeave={() => sendCommand("STOP")}
+                    onMouseDown={() => sendCommand("move backward")}
+                    onMouseUp={() => sendCommand("stop")}
+                    onMouseLeave={() => sendCommand("stop")}
                   >
                     <ArrowDown class="w-8 h-8 text-text" />
                   </button>
@@ -238,6 +250,8 @@ function App() {
                   class="flex-1 h-full bg-header-bg text-text pr-3 pl-2 outline-0 caret-w-[3px] caret-text animate-caret-blink"
                   placeholder="ENTER A COMMAND"
                   spellcheck={false}
+                  ref={inputRef}
+                  onKeyDown={handleInputKeyDown}
                 />
                 <div class="flex items-center pr-2">
                   <ReturnIcon class="w-5 h-5 text-text" />
