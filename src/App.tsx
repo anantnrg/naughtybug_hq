@@ -225,7 +225,7 @@ function App() {
             {/* Add any children here */}
           </Panel>
           <Panel title="Terminal/Logs" class="h-1/2 flex flex-col">
-            <div class="h-full w-full flex flex-col overflow-y-auto px-4 py-4 space-y-1 font-martian text-sm font-light gap-3">
+            <div class="flex-1 overflow-y-auto px-4 py-4 space-y-1 font-martian text-sm font-light gap-3 flex flex-col">
               {logs().map((log) => (
                 <span
                   class={
@@ -240,7 +240,7 @@ function App() {
                 </span>
               ))}
             </div>
-            <div class="w-full h-18 flex items-center justify-center p-2">
+            <div class="w-full h-16 flex items-center justify-center p-2">
               <div class="flex w-full h-full bg-header-bg text-text border border-border">
                 <div class="flex items-center pl-2">
                   <ChevronRightIcon class="w-5 h-5 text-text" />

@@ -23,7 +23,7 @@ struct SendPacket {
     params: Value,
 }
 
-fn parse_command(input: &str) -> Result<SendPacket, String> {
+fn parse_command(input: &str, app: AppHandle) -> Result<SendPacket, String> {
     let mut parts = input.trim().split_whitespace();
     let action = parts.next().ok_or("empty command")?.to_lowercase();
     let mut params = serde_json::Map::new();
@@ -60,7 +60,10 @@ fn parse_command(input: &str) -> Result<SendPacket, String> {
             }
         }
         "stop" | "dance" | "sit" | "stand" | "wave" => {}
-        _ => return Err(format!("unknown command: {action}")),
+        _ => {
+             let _ = app.emit("ws_sent_invalid", &action);
+             return Err("Invalid action.".to_string())
+        },
     }
 
     Ok(SendPacket {
@@ -116,11 +119,11 @@ async fn connect(app: AppHandle) -> Result<(), String> {
 }
 
 #[tauri::command]
-async fn send_command(cmd: String) -> Result<(), String> {
+async fn send_command(app: AppHandle, cmd: String) -> Result<(), String> {
     let mut ws_opt = WS_CONNECTION.lock().await;
 
         if let Some(write) = ws_opt.as_mut() {
-            let packet = parse_command(&cmd)?;
+            let packet = parse_command(&cmd, app)?;
             let json = serde_json::to_string(&packet).map_err(|e| e.to_string())?;
             write.send(Message::Text(json.into())).await.map_err(|e| e.to_string())?;
         }
