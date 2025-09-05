@@ -14,7 +14,7 @@ import ChevronRightIcon from "./assets/icons/double_chevron_right.svg";
 import ReturnIcon from "./assets/icons/return.svg";
 
 import Panel from "./Panel";
-import { createSignal, onCleanup } from "solid-js";
+import { createSignal, onCleanup, createEffect } from "solid-js";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 
@@ -51,6 +51,11 @@ function App() {
   let inputRef: HTMLInputElement | undefined;
 
   const handleKeyDown = (e: KeyboardEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") {
+      return;
+    }
+
     const cmd = getCommandForKey(e);
     if (!cmd) return;
 
@@ -66,6 +71,11 @@ function App() {
   };
 
   const handleKeyUp = (e: KeyboardEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") {
+      return;
+    }
+
     const cmd = getCommandForKey(e);
     if (!cmd) return;
 
@@ -110,8 +120,17 @@ function App() {
     { level: "CMD", text: "set gait trot" },
   ]);
 
+  let logContainer: HTMLDivElement | undefined;
+
+  createEffect(() => {
+    logs();
+    if (logContainer) {
+      logContainer.scrollTop = logContainer.scrollHeight;
+    }
+  });
+
   return (
-    <main class="bg-bg h-screen w-screen flex flex-col p-3 items-center justify-center gap-y-3">
+    <main class="bg-bg h-screen w-screen flex flex-col p-3 items-center justify-center gap-y-3 overflow-hidden">
       <div class="w-full h-12 bg-header-bg border border-border flex items-center justify-between px-4">
         <span class="text-2xl text-heading uppercase font-semibold tracking-wider">
           NaughtyBug Core-x
@@ -139,9 +158,9 @@ function App() {
         </div>
       </div>
 
-      <div class="w-full h-full flex gap-x-3">
+      <div class="w-full h-full flex gap-x-3 overflow-hidden">
         <div class="w-3/5 h-full flex flex-col gap-y-3">
-          <div class="w-full h-full flex gap-x-3">
+          <div class="w-full h-full flex gap-x-3 overflow-hidden">
             <Panel
               title="Movement Control"
               class="flex items-center justify-center"
@@ -220,12 +239,18 @@ function App() {
           </div>
         </div>
 
-        <div class="w-2/5 h-full flex flex-col gap-y-3">
+        <div class="w-2/5 h-full flex flex-col gap-y-3 overflow-hidden">
           <Panel title="System Info" class="h-1/2">
             {/* Add any children here */}
           </Panel>
-          <Panel title="Terminal/Logs" class="h-1/2 flex flex-col">
-            <div class="flex-1 overflow-y-auto px-4 py-4 space-y-1 font-martian text-sm font-light gap-3 flex flex-col">
+          <Panel
+            title="Terminal/Logs"
+            class="h-1/2 flex flex-col overflow-hidden"
+          >
+            <div
+              ref={logContainer}
+              class="flex-1 min-h-0 overflow-y-auto px-4 py-4 space-y-1 font-martian text-sm font-light flex flex-col"
+            >
               {logs().map((log) => (
                 <span
                   class={
@@ -240,7 +265,7 @@ function App() {
                 </span>
               ))}
             </div>
-            <div class="w-full h-16 flex items-center justify-center p-2">
+            <div class="w-full h-16 flex items-center justify-center p-2 shrink-0">
               <div class="flex w-full h-full bg-header-bg text-text border border-border">
                 <div class="flex items-center pl-2">
                   <ChevronRightIcon class="w-5 h-5 text-text" />
