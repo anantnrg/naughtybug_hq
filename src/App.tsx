@@ -104,17 +104,27 @@ function App() {
         <span class="text-2xl text-heading uppercase font-semibold tracking-wider">
           NaughtyBug Core-x
         </span>
-        {connected() ? (
-          <span class="text-lg text-heading uppercase flex gap-x-1 items-center justify-center">
-            <ConnectedIcon class="w-5" />
-            <span>Connected</span>
-          </span>
-        ) : (
-          <span class="text-lg text-danger uppercase flex gap-x-1 items-center justify-center">
-            <DisconnectedIcon class="w-5" />
-            <span>Disconnected</span>
-          </span>
-        )}
+        <div
+          onClick={async () => {
+            try {
+              await invoke("connect");
+            } catch (err) {
+              console.error("Error sending command:", err);
+            }
+          }}
+        >
+          {connected() ? (
+            <span class="text-lg text-heading uppercase flex gap-x-1 items-center justify-center">
+              <ConnectedIcon class="w-5" />
+              <span>Connected</span>
+            </span>
+          ) : (
+            <span class="text-lg text-danger uppercase flex gap-x-1 items-center justify-center">
+              <DisconnectedIcon class="w-5" />
+              <span>Disconnected</span>
+            </span>
+          )}
+        </div>
       </div>
 
       <div class="w-full h-full flex gap-x-3">
