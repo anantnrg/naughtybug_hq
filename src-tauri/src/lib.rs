@@ -2,11 +2,10 @@ use lazy_static::lazy_static;
 use tokio_tungstenite::{connect_async, WebSocketStream, MaybeTlsStream};
 use tokio::net::TcpStream;
 use tokio::sync::Mutex;
-use futures_util::{SinkExt, StreamExt};
+use futures_util::{SinkExt, StreamExt, stream::SplitSink};
 use std::sync::Arc;
 use tokio_tungstenite::tungstenite::protocol::Message;
 use tauri::{AppHandle, Emitter};
-use futures_util::stream::SplitSink;
 
 type WsWrite = SplitSink<WebSocketStream<MaybeTlsStream<TcpStream>>, Message>;
 
@@ -49,6 +48,7 @@ async fn connect(app: AppHandle) -> Result<(), String> {
                     }
                 }
             }
+            let _ = app_handle.emit("connected", false);
         });
 
         app.emit("connected", true).map_err(|e| e.to_string())?;

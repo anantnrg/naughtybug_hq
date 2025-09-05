@@ -86,7 +86,7 @@ function App() {
   window.addEventListener("keydown", handleKeyDown);
   window.addEventListener("keyup", handleKeyUp);
 
-  onCleanup(() => {
+  onCleanup(() => {3
     window.removeEventListener("keydown", handleKeyDown);
     window.removeEventListener("keyup", handleKeyUp);
   });
