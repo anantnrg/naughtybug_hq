@@ -114,10 +114,7 @@ function App() {
   });
 
   const [logs, setLogs] = createSignal([
-    { level: "INFO", text: "Moving forward" },
-    { level: "ERROR", text: "Servo 5 not responding" },
-    { level: "INFO", text: "Pitch: 3.2°, Roll: -1.5°" },
-    { level: "CMD", text: "set gait trot" },
+    { level: "INFO", text: "Not connected to NaughtyBug." },
   ]);
 
   let logContainer: HTMLDivElement | undefined;
@@ -129,12 +126,18 @@ function App() {
     }
   });
 
-  listen("ws_info", (e) => {
+  interface WsPacket {
+    type: string;
+    action: string;
+    params: Record<string, any>;
+  }
+
+  listen<WsPacket>("ws_info", (e) => {
     const { params } = e.payload;
     setLogs((prev) => [...prev, { level: "INFO", text: params.state }]);
   });
 
-  listen("ws_error", (e) => {
+  listen<WsPacket>("ws_error", (e) => {
     const { params } = e.payload;
     setLogs((prev) => [...prev, { level: "ERROR", text: params.error }]);
   });

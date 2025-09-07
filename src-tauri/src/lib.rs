@@ -117,7 +117,7 @@ async fn connect(app: AppHandle) -> Result<(), String> {
                                     let _ = app_handle.emit("ws_message", &packet);
                                 }
                                 Err(_) => {
-                                    let _ = app_handle.emit("ws_bad_json", txt);
+                                    let _ = app_handle.emit("ws_bad_json", txt.to_string());
                                 }
                             }
                         }
