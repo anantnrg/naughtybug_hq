@@ -129,6 +129,16 @@ function App() {
     }
   });
 
+  listen("ws_info", (e) => {
+    const { params } = e.payload;
+    setLogs((prev) => [...prev, { level: "INFO", text: params.state }]);
+  });
+
+  listen("ws_error", (e) => {
+    const { params } = e.payload;
+    setLogs((prev) => [...prev, { level: "ERROR", text: params.error }]);
+  });
+
   return (
     <main class="bg-bg h-screen w-screen flex flex-col p-3 items-center justify-center gap-y-3 overflow-hidden">
       <div class="w-full h-12 bg-header-bg border border-border flex items-center justify-between px-4">

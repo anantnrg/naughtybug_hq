@@ -23,6 +23,13 @@ struct SendPacket {
     params: Value,
 }
 
+#[derive(Debug, serde::Deserialize, serde::Serialize)]
+struct IncomingPacket {
+    r#type: String,
+    action: String,
+    params: Value,
+}
+
 fn parse_command(input: &str, app: AppHandle) -> Result<SendPacket, String> {
     let mut parts = input.trim().split_whitespace();
     let action = parts.next().ok_or("empty command")?.to_lowercase();
@@ -98,14 +105,28 @@ async fn connect(app: AppHandle) -> Result<(), String> {
         tokio::spawn(async move {
             while let Some(msg) = read.next().await {
                 match msg {
-                    Ok(m) => {
-                        let _ = app_handle.emit("ws_message", m.to_string());
+                        Ok(Message::Text(txt)) => {
+                            match serde_json::from_str::<IncomingPacket>(&txt) {
+                                Ok(packet) => {
+                                    match packet.r#type.as_str() {
+                                        "info" => { let _ = app_handle.emit("ws_info", &packet); }
+                                        "error" => { let _ = app_handle.emit("ws_error", &packet); }
+                                        "telemetry" => { let _ = app_handle.emit("ws_telemetry", &packet); }
+                                        _ => { let _ = app_handle.emit("ws_unknown", &packet); }
+                                    }
+                                    let _ = app_handle.emit("ws_message", &packet);
+                                }
+                                Err(_) => {
+                                    let _ = app_handle.emit("ws_bad_json", txt);
+                                }
+                            }
+                        }
+                        Ok(_) => {}
+                        Err(e) => {
+                            eprintln!("WS read error: {e}");
+                            break;
+                        }
                     }
-                    Err(e) => {
-                        eprintln!("WS read error: {e}");
-                        break;
-                    }
-                }
             }
             let _ = app_handle.emit("connected", false);
         });
