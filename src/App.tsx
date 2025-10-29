@@ -107,6 +107,14 @@ function App() {
   window.addEventListener("keydown", handleKeyDown);
   window.addEventListener("keyup", handleKeyUp);
 
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Shift") setShiftPressed(true);
+  });
+
+  window.addEventListener("keyup", (e) => {
+    if (e.key === "Shift") setShiftPressed(false);
+  });
+
   onCleanup(() => {
     3;
     window.removeEventListener("keydown", handleKeyDown);
@@ -176,77 +184,73 @@ function App() {
           <div class="w-full h-full flex gap-x-3 overflow-hidden">
             <Panel
               title="Movement Control"
-              class="flex items-center justify-center"
+              class="flex flex-col items-center justify-between relative"
             >
-              <div class="w-full h-full flex items-center justify-center">
-                <div class="grid grid-cols-3 grid-rows-3 w-auto h-auto place-items-center gap-2">
+              {/* MAIN CONTROL AREA */}
+              <div class="flex-1 w-full flex items-center justify-center relative">
+                {/* D-PAD GRID */}
+                <div class="grid grid-cols-3 grid-rows-3 place-items-center gap-3">
                   <div></div>
-                  <button
-                    class="control-btn w-24 h-20 focus:outline-none"
-                    onMouseDown={() => sendCommand("move forward")}
-                    onMouseUp={() => sendCommand("stop")}
-                    onMouseLeave={() => sendCommand("stop")}
-                  >
+                  <button class="control-btn w-24 h-20 flex items-center justify-center">
                     <ArrowUp class="w-8 h-8 text-text" />
                   </button>
                   <div></div>
 
-                  <button
-                    class="control-btn w-20 h-24 focus:outline-none"
-                    onMouseDown={() =>
-                      shiftPressed()
-                        ? sendCommand("turn left")
-                        : sendCommand("move left")
-                    }
-                    onMouseUp={() => sendCommand("stop")}
-                    onMouseLeave={() => sendCommand("stop")}
-                  >
+                  <button class="control-btn w-20 h-24 flex items-center justify-center">
                     {shiftPressed() ? (
-                      <TurnLeft class="w-7 h-7 text-text" />
+                      <TurnLeft class="w-8 h-8 text-primary transition-colors duration-200" />
                     ) : (
-                      <ArrowLeft class="w-8 h-8 text-text" />
+                      <ArrowLeft class="w-8 h-8 text-text transition-colors duration-200" />
                     )}
                   </button>
 
-                  <button
-                    class="control-btn w-24 h-24 focus:outline-none"
-                    onClick={() => sendCommand("stop")}
-                  >
+                  <button class="control-btn w-24 h-24 flex items-center justify-center">
                     <StopIcon class="w-10 h-10 text-text" />
                   </button>
 
-                  <button
-                    class="control-btn w-20 h-24 focus:outline-none"
-                    onMouseDown={() =>
-                      shiftPressed()
-                        ? sendCommand("turn right")
-                        : sendCommand("move right")
-                    }
-                    onMouseUp={() => sendCommand("stop")}
-                    onMouseLeave={() => sendCommand("stop")}
-                  >
+                  <button class="control-btn w-20 h-24 flex items-center justify-center">
                     {shiftPressed() ? (
-                      <TurnRight class="w-7 h-7 text-text" />
+                      <TurnRight class="w-8 h-8 text-primary transition-colors duration-200" />
                     ) : (
-                      <ArrowRight class="w-8 h-8 text-text" />
+                      <ArrowRight class="w-8 h-8 text-text transition-colors duration-200" />
                     )}
                   </button>
 
                   <div></div>
-                  <button
-                    class="control-btn w-24 h-20 focus:outline-none"
-                    onMouseDown={() => sendCommand("move backward")}
-                    onMouseUp={() => sendCommand("stop")}
-                    onMouseLeave={() => sendCommand("stop")}
-                  >
+                  <button class="control-btn w-24 h-20 flex items-center justify-center">
                     <ArrowDown class="w-8 h-8 text-text" />
                   </button>
                   <div></div>
                 </div>
+
+                {/* ACTION BUTTONS */}
+                <div class="absolute inset-0 flex items-center justify-between pointer-events-none px-10">
+                  {/* LEFT SIDE */}
+                  <div class="flex flex-col gap-y-8 pointer-events-auto">
+                    <button class="action-btn">Sit</button>
+                    <button class="action-btn">Stand</button>
+                  </div>
+
+                  {/* RIGHT SIDE */}
+                  <div class="flex flex-col gap-y-8 pointer-events-auto">
+                    <button class="action-btn">Wave</button>
+                    <button class="action-btn">Dance</button>
+                  </div>
+                </div>
               </div>
 
-              <div class="absolute z-10 pointer-events-none w-full h-full flex items-center justify-center pt-12">
-                <Compass class="w-[464px] h-[464px]" />
+              {/* BOTTOM TELEMETRY STRIP */}
+              <div class="w-full h-[120px] flex items-center justify-evenly border-t border-border mt-3">
+                {["Pitch", "Roll", "Yaw"].map((label) => (
+                  <div class="dial text-center flex flex-col items-center">
+                    <div class="w-20 h-20 bg-header-bg border border-border rounded-full flex items-center justify-center">
+                      <span class="text-muted text-sm">--°</span>
+                    </div>
+                    <span class="mt-2 text-muted text-xs uppercase tracking-widest">
+                      {label}
+                    </span>
+                  </div>
+                ))}
               </div>
             </Panel>
           </div>

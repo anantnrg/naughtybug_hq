@@ -1,18 +1,18 @@
 @import "tailwindcss";
 
 @theme {
-    --color-bg: #080e13;
-    --color-panels: #080e13;
-    --color-header-bg: #0c1419;
-    --color-border: #172225;
-    --color-button-bg: #101a1f;
-    --color-text: #bcd3ce;
-    --color-heading: #45e0c7;
+    --color-bg: #030405; /* void black */
+    --color-panels: #070a0c; /* slightly lifted – cold gunmetal */
+    --color-header-bg: #0b0f11; /* faintly bluish tone, separates clean */
+    --color-border: #12181b; /* thin contrast outline */
+    --color-button-bg: #0a0e10; /* dark, icy bluish undertone */
+    --color-text: #c0d4d7; /* bright cold gray-blue */
+    --color-heading: #ff4040; /* neon blood red – the glow of rage */
 
-    --color-primary: #4fcab1;
-    --color-danger: #c5654a;
-    --color-info: #7adcca;
-    --color-muted: #62827a;
+    --color-primary: #ff2f2f; /* sharp neon crimson – the main accent */
+    --color-danger: #ff5252; /* slightly hotter red – alert tone */
+    --color-info: #31748f; /* arctic teal for cyber contrast */
+    --color-muted: #4b5d63; /* frosty gray for secondary bits */
 
     --font-martian: "MartianMono NF";
 }
@@ -31,7 +31,21 @@
     -webkit-text-size-adjust: 100%;
 }
 
-.control-btn {
-    @apply bg-button-bg border border-border text-heading text-lg font-bold
-         hover:bg-heading/60 hover:text-bg transition flex items-center justify-center;
+.control-btn,
+.action-btn {
+    @apply bg-button-bg border border-border text-text rounded-md flex items-center justify-center transition-all duration-150;
+}
+
+.control-btn:hover,
+.action-btn:hover {
+    @apply bg-primary/20 text-primary scale-[1.03];
+}
+
+.control-btn:active,
+.action-btn:active {
+    @apply scale-95 bg-primary/30;
+}
+
+.action-btn {
+    @apply px-6 py-3 text-sm font-semibold uppercase tracking-wider;
 }
