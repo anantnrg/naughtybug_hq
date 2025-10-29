@@ -7,7 +7,6 @@ import ArrowDown from "./assets/icons/backward.svg";
 import ArrowLeft from "./assets/icons/left.svg";
 import ArrowRight from "./assets/icons/right.svg";
 import StopIcon from "./assets/icons/stop.svg";
-import Compass from "./assets/compass.svg";
 import TurnLeft from "./assets/icons/turn_left.svg";
 import TurnRight from "./assets/icons/turn_right.svg";
 import ChevronRightIcon from "./assets/icons/double_chevron_right.svg";
@@ -20,10 +19,17 @@ import { listen } from "@tauri-apps/api/event";
 
 function App() {
   const [connected, setConnected] = createSignal(false);
+  const [shiftPressed, setShiftPressed] = createSignal(false);
+  const [logs, setLogs] = createSignal([
+    { level: "INFO", text: "Not connected to NaughtyBug." },
+  ]);
 
-  listen<boolean>("connected", (e) => {
-    setConnected(e.payload);
-  });
+  let inputRef: HTMLInputElement | undefined;
+  let logContainer: HTMLDivElement | undefined;
+  let activeCmd: string | null = null;
+  let queuedCmd: string | null = null;
+
+  listen<boolean>("connected", (e) => setConnected(e.payload));
 
   const sendCommand = async (cmd: string) => {
     try {
@@ -34,11 +40,6 @@ function App() {
     }
   };
 
-  const [shiftPressed, setShiftPressed] = createSignal(false);
-
-  let activeCmd: string | null = null;
-  let queuedCmd: string | null = null;
-
   const getCommandForKey = (e: KeyboardEvent): string | null => {
     const key = e.key.toLowerCase();
     if (key === "w") return "move forward";
@@ -48,18 +49,26 @@ function App() {
     return null;
   };
 
-  let inputRef: HTMLInputElement | undefined;
+  const cmdToSelector: Record<string, string> = {
+    "move forward": "#btn-up",
+    "move backward": "#btn-down",
+    "move left": "#btn-left",
+    "move right": "#btn-right",
+    "turn left": "#btn-left",
+    "turn right": "#btn-right",
+  };
 
   const handleKeyDown = (e: KeyboardEvent) => {
     const target = e.target as HTMLElement;
-    if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") {
-      return;
-    }
+    if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") return;
 
     const cmd = getCommandForKey(e);
     if (!cmd) return;
 
     if (e.shiftKey) setShiftPressed(true);
+
+    const sel = cmdToSelector[cmd];
+    if (sel) document.querySelector(sel)?.classList.add("active-key");
 
     if (!activeCmd) {
       activeCmd = cmd;
@@ -72,14 +81,15 @@ function App() {
 
   const handleKeyUp = (e: KeyboardEvent) => {
     const target = e.target as HTMLElement;
-    if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") {
-      return;
-    }
+    if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") return;
 
     const cmd = getCommandForKey(e);
     if (!cmd) return;
 
     if (!e.shiftKey) setShiftPressed(false);
+
+    const sel = cmdToSelector[cmd];
+    if (sel) document.querySelector(sel)?.classList.remove("active-key");
 
     if (cmd === activeCmd) {
       sendCommand("stop");
@@ -110,28 +120,18 @@ function App() {
   window.addEventListener("keydown", (e) => {
     if (e.key === "Shift") setShiftPressed(true);
   });
-
   window.addEventListener("keyup", (e) => {
     if (e.key === "Shift") setShiftPressed(false);
   });
 
   onCleanup(() => {
-    3;
     window.removeEventListener("keydown", handleKeyDown);
     window.removeEventListener("keyup", handleKeyUp);
   });
 
-  const [logs, setLogs] = createSignal([
-    { level: "INFO", text: "Not connected to NaughtyBug." },
-  ]);
-
-  let logContainer: HTMLDivElement | undefined;
-
   createEffect(() => {
     logs();
-    if (logContainer) {
-      logContainer.scrollTop = logContainer.scrollHeight;
-    }
+    if (logContainer) logContainer.scrollTop = logContainer.scrollHeight;
   });
 
   interface WsPacket {
@@ -152,9 +152,10 @@ function App() {
 
   return (
     <main class="bg-bg h-screen w-screen flex flex-col p-3 items-center justify-center gap-y-3 overflow-hidden">
+      {/* HEADER */}
       <div class="w-full h-12 bg-header-bg border border-border flex items-center justify-between px-4">
         <span class="text-2xl text-heading uppercase font-semibold tracking-wider">
-          NaughtyBug Core-x
+          AN-X8 MK III
         </span>
         <div
           onClick={async () => {
@@ -179,87 +180,109 @@ function App() {
         </div>
       </div>
 
+      {/* MAIN CONTENT */}
       <div class="w-full h-full flex gap-x-3 overflow-hidden">
+        {/* LEFT COLUMN */}
         <div class="w-3/5 h-full flex flex-col gap-y-3">
-          <div class="w-full h-full flex gap-x-3 overflow-hidden">
-            <Panel
-              title="Movement Control"
-              class="flex flex-col items-center justify-between relative"
-            >
-              {/* MAIN CONTROL AREA */}
-              <div class="flex-1 w-full flex items-center justify-center relative">
-                {/* D-PAD GRID */}
-                <div class="grid grid-cols-3 grid-rows-3 place-items-center gap-3">
-                  <div></div>
-                  <button class="control-btn w-24 h-20 flex items-center justify-center">
-                    <ArrowUp class="w-8 h-8 text-text" />
-                  </button>
-                  <div></div>
+          {/* MOVEMENT CONTROL PANEL (shorter now) */}
+          <Panel
+            title="Movement Control"
+            class="flex flex-col items-center justify-between relative h-[60%]"
+          >
+            <div class="flex-1 w-full flex items-center justify-center relative">
+              {/* D-PAD GRID */}
+              <div class="grid grid-cols-3 grid-rows-3 place-items-center gap-3">
+                <div></div>
+                <button
+                  id="btn-up"
+                  class="control-btn w-24 h-20 flex items-center justify-center"
+                >
+                  <ArrowUp class="w-8 h-8 text-text" />
+                </button>
+                <div></div>
 
-                  <button class="control-btn w-20 h-24 flex items-center justify-center">
-                    {shiftPressed() ? (
-                      <TurnLeft class="w-8 h-8 text-primary transition-colors duration-200" />
-                    ) : (
-                      <ArrowLeft class="w-8 h-8 text-text transition-colors duration-200" />
-                    )}
-                  </button>
+                <button
+                  id="btn-left"
+                  class="control-btn w-20 h-24 flex items-center justify-center"
+                >
+                  {shiftPressed() ? (
+                    <TurnLeft class="w-8 h-8 text-primary transition-colors duration-200" />
+                  ) : (
+                    <ArrowLeft class="w-8 h-8 text-text transition-colors duration-200" />
+                  )}
+                </button>
 
-                  <button class="control-btn w-24 h-24 flex items-center justify-center">
-                    <StopIcon class="w-10 h-10 text-text" />
-                  </button>
+                <button class="control-btn w-24 h-24 flex items-center justify-center">
+                  <StopIcon class="w-10 h-10 text-text" />
+                </button>
 
-                  <button class="control-btn w-20 h-24 flex items-center justify-center">
-                    {shiftPressed() ? (
-                      <TurnRight class="w-8 h-8 text-primary transition-colors duration-200" />
-                    ) : (
-                      <ArrowRight class="w-8 h-8 text-text transition-colors duration-200" />
-                    )}
-                  </button>
+                <button
+                  id="btn-right"
+                  class="control-btn w-20 h-24 flex items-center justify-center"
+                >
+                  {shiftPressed() ? (
+                    <TurnRight class="w-8 h-8 text-primary transition-colors duration-200" />
+                  ) : (
+                    <ArrowRight class="w-8 h-8 text-text transition-colors duration-200" />
+                  )}
+                </button>
 
-                  <div></div>
-                  <button class="control-btn w-24 h-20 flex items-center justify-center">
-                    <ArrowDown class="w-8 h-8 text-text" />
-                  </button>
-                  <div></div>
-                </div>
-
-                {/* ACTION BUTTONS */}
-                <div class="absolute inset-0 flex items-center justify-between pointer-events-none px-10">
-                  {/* LEFT SIDE */}
-                  <div class="flex flex-col gap-y-8 pointer-events-auto">
-                    <button class="action-btn">Sit</button>
-                    <button class="action-btn">Stand</button>
-                  </div>
-
-                  {/* RIGHT SIDE */}
-                  <div class="flex flex-col gap-y-8 pointer-events-auto">
-                    <button class="action-btn">Wave</button>
-                    <button class="action-btn">Dance</button>
-                  </div>
-                </div>
+                <div></div>
+                <button
+                  id="btn-down"
+                  class="control-btn w-24 h-20 flex items-center justify-center"
+                >
+                  <ArrowDown class="w-8 h-8 text-text" />
+                </button>
+                <div></div>
               </div>
 
-              {/* BOTTOM TELEMETRY STRIP */}
-              <div class="w-full h-[120px] flex items-center justify-evenly border-t border-border mt-3">
-                {["Pitch", "Roll", "Yaw"].map((label) => (
-                  <div class="dial text-center flex flex-col items-center">
-                    <div class="w-20 h-20 bg-header-bg border border-border rounded-full flex items-center justify-center">
-                      <span class="text-muted text-sm">--°</span>
-                    </div>
-                    <span class="mt-2 text-muted text-xs uppercase tracking-widest">
-                      {label}
-                    </span>
-                  </div>
-                ))}
+              {/* ACTION BUTTONS */}
+              <div class="absolute inset-0 flex items-center justify-between pointer-events-none px-10">
+                <div class="flex flex-col gap-y-8 pointer-events-auto">
+                  <button class="action-btn">Sit</button>
+                  <button class="action-btn">Stand</button>
+                </div>
+                <div class="flex flex-col gap-y-8 pointer-events-auto">
+                  <button class="action-btn">Wave</button>
+                  <button class="action-btn">Dance</button>
+                </div>
               </div>
-            </Panel>
-          </div>
+            </div>
+          </Panel>
+
+          <Panel
+            title="System Info"
+            class="flex flex-col items-center justify-center h-[40%]"
+          >
+            <div class="w-full h-full flex items-center justify-evenly">
+              {["Pitch", "Roll", "Yaw"].map((label) => (
+                <div class="dial text-center flex flex-col items-center">
+                  <div class="w-32 h-32 bg-header-bg border border-border rounded-full flex items-center justify-center">
+                    <span class="text-muted text-base">--°</span>
+                  </div>
+                  <span class="mt-2 text-muted text-xs uppercase tracking-widest">
+                    {label}
+                  </span>
+                </div>
+              ))}
+
+              {/* ⚡ BATTERY GAUGE */}
+              <div class="dial text-center flex flex-col items-center">
+                <div class="w-32 h-32 bg-header-bg border border-border rounded-full flex items-center justify-center">
+                  <span class="text-primary text-lg font-semibold">96%</span>
+                </div>
+                <span class="mt-2 text-muted text-xs uppercase tracking-widest">
+                  Battery
+                </span>
+              </div>
+            </div>
+          </Panel>
         </div>
 
+        {/* RIGHT COLUMN */}
         <div class="w-2/5 h-full flex flex-col gap-y-3 overflow-hidden">
-          <Panel title="System Info" class="h-1/2">
-            {/* Add any children here */}
-          </Panel>
+          <Panel title="Configuration" class="h-1/2"></Panel>
           <Panel
             title="Terminal/Logs"
             class="h-1/2 flex flex-col overflow-hidden"

@@ -73,3 +73,9 @@
     color: var(--color-primary);
     fill: var(--color-primary);
 }
+
+.control-btn:focus,
+.action-btn:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
