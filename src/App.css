@@ -33,7 +33,7 @@
 
 .control-btn,
 .action-btn {
-    @apply bg-button-bg border border-border text-text rounded-md flex items-center justify-center transition-all duration-150;
+    @apply bg-button-bg border border-border text-text flex items-center justify-center transition-all duration-150;
 }
 
 .control-btn:hover,
