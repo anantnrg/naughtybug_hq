@@ -49,3 +49,27 @@
 .action-btn {
     @apply px-6 py-3 text-sm font-semibold uppercase tracking-wider;
 }
+
+.control-btn svg,
+.action-btn svg {
+    @apply w-6 h-6;
+    fill: currentColor !important;
+    color: inherit !important;
+    transition:
+        color 0.15s ease,
+        fill 0.15s ease;
+}
+
+/* ensure internal paths also follow */
+.control-btn svg *,
+.action-btn svg * {
+    fill: currentColor !important;
+    stroke: currentColor !important;
+}
+
+/* hover color match */
+.control-btn:hover svg,
+.action-btn:hover svg {
+    color: var(--color-primary);
+    fill: var(--color-primary);
+}
