@@ -151,6 +151,17 @@ function App() {
     setLogs((prev) => [...prev, { level: "ERROR", text: params.error }]);
   });
 
+  function polarToCartesian(cx, cy, r, angleDeg) {
+    const rad = (angleDeg * Math.PI) / 180;
+    return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+  }
+
+  function colorFor(percent) {
+    if (percent < 20) return "#ff2f2f";
+    if (percent < 50) return "#ffaa00";
+    return "#22ff55";
+  }
+
   return (
     <main class="bg-bg h-screen w-screen flex flex-col p-3 items-center justify-center gap-y-3 overflow-hidden">
       {/* HEADER */}
@@ -341,18 +352,6 @@ function App() {
                 {/* Label */}
                 <span class="mt-2 text-muted text-sm uppercase tracking-widest">
                   Yaw
-                </span>
-              </div>
-
-              {/* BATTERY */}
-              <div class="dial text-center flex flex-col items-center">
-                <div class="w-36 h-36 bg-header-bg border border-border rounded-full flex items-center justify-center">
-                  <span class="text-primary text-2xl font-bold tracking-wide">
-                    96%
-                  </span>
-                </div>
-                <span class="mt-2 text-muted text-sm uppercase tracking-widest">
-                  Battery
                 </span>
               </div>
             </div>
