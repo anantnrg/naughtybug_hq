@@ -12,9 +12,6 @@ import TurnRight from "./assets/icons/turn_right.svg";
 import ChevronRightIcon from "./assets/icons/double_chevron_right.svg";
 import ReturnIcon from "./assets/icons/return.svg";
 
-import PitchRollGauge from "./assets/roll gauge.svg";
-import YawGauge from "./assets/yaw gauge.svg";
-
 import Panel from "./Panel";
 import { createSignal, onCleanup, createEffect } from "solid-js";
 import { invoke } from "@tauri-apps/api/core";
@@ -266,17 +263,23 @@ function App() {
                   <div
                     class="absolute inset-0 transition-transform duration-300"
                     style={{
-                      transform: "rotate(10deg)",
+                      transform: "rotate(10deg)", // or whatever your live pitch/roll value is
                     }}
                   >
-                    <div class="absolute top-0 left-0 w-full h-1/2 bg-[#31748f]" />
-                    <div class="absolute bottom-0 left-0 w-full h-1/2 bg-[#5b3a29]" />
-                    <div class="absolute top-1/2 left-0 w-full h-[2px] bg-border" />
+                    {/* UPPER HALF — “SKY” */}
+                    <div class="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-[#0a0e1a] via-[#0d1840] to-[#142950] shadow-inner" />
+
+                    {/* LOWER HALF — “GROUND” */}
+                    <div class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-[#1a0b0b] via-[#2b0f0f] to-[#3b1414]" />
+
+                    {/* HORIZON LINE */}
+                    <div class="absolute top-1/2 left-0 w-full h-[2px] bg-primary animate-pulse shadow-[0_0_12px_#ff2f2f]" />
                   </div>
                   {/* degree display */}
                   <div class="absolute inset-0 flex items-center justify-center">
-                    <span class="text-text text-base font-semibold">+10°</span>
+                    <span class="text-white text-2xl font-bold">+10°</span>
                   </div>
+                  <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_60%,#000_100%)] opacity-40 pointer-events-none"></div>
                 </div>
                 <span class="mt-2 text-muted text-sm uppercase tracking-widest">
                   Pitch
@@ -286,19 +289,27 @@ function App() {
               {/* ROLL */}
               <div class="dial text-center flex flex-col items-center">
                 <div class="w-36 h-36 bg-header-bg border border-border rounded-full overflow-hidden relative">
+                  {/* artificial horizon */}
                   <div
                     class="absolute inset-0 transition-transform duration-300"
                     style={{
-                      transform: "rotate(-25deg)",
+                      transform: "rotate(-20deg)", // or whatever your live pitch/roll value is
                     }}
                   >
-                    <div class="absolute top-0 left-0 w-full h-1/2 bg-[#31748f]" />
-                    <div class="absolute bottom-0 left-0 w-full h-1/2 bg-[#5b3a29]" />
-                    <div class="absolute top-1/2 left-0 w-full h-[2px] bg-border" />
+                    {/* UPPER HALF — “SKY” */}
+                    <div class="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-[#0a0e1a] via-[#0d1840] to-[#142950] shadow-inner" />
+
+                    {/* LOWER HALF — “GROUND” */}
+                    <div class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-[#1a0b0b] via-[#2b0f0f] to-[#3b1414]" />
+
+                    {/* HORIZON LINE */}
+                    <div class="absolute top-1/2 left-0 w-full h-[2px] bg-primary animate-pulse shadow-[0_0_12px_#ff2f2f]" />
                   </div>
+                  {/* degree display */}
                   <div class="absolute inset-0 flex items-center justify-center">
-                    <span class="text-text text-base font-semibold">-25°</span>
+                    <span class="text-white text-2xl font-bold">-20°</span>
                   </div>
+                  <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_60%,#000_100%)] opacity-40 pointer-events-none"></div>
                 </div>
                 <span class="mt-2 text-muted text-sm uppercase tracking-widest">
                   Roll
