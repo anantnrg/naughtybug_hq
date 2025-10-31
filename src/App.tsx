@@ -11,6 +11,7 @@ import TurnLeft from "./assets/icons/turn_left.svg";
 import TurnRight from "./assets/icons/turn_right.svg";
 import ChevronRightIcon from "./assets/icons/double_chevron_right.svg";
 import ReturnIcon from "./assets/icons/return.svg";
+import YawGauge from "./assets/yaw gauge.svg";
 
 import Panel from "./Panel";
 import { createSignal, onCleanup, createEffect } from "solid-js";
@@ -280,6 +281,7 @@ function App() {
                     <span class="text-white text-2xl font-bold">+10°</span>
                   </div>
                   <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_60%,#000_100%)] opacity-40 pointer-events-none"></div>
+                  <div class="absolute inset-0 bg-[repeating-linear-gradient(to_bottom,rgba(255,255,255,0.02)_0,rgba(255,255,255,0.02)_1px,transparent_1px,transparent_3px)] pointer-events-none" />
                 </div>
                 <span class="mt-2 text-muted text-sm uppercase tracking-widest">
                   Pitch
@@ -310,6 +312,7 @@ function App() {
                     <span class="text-white text-2xl font-bold">-20°</span>
                   </div>
                   <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_60%,#000_100%)] opacity-40 pointer-events-none"></div>
+                  <div class="absolute inset-0 bg-[repeating-linear-gradient(to_bottom,rgba(255,255,255,0.02)_0,rgba(255,255,255,0.02)_1px,transparent_1px,transparent_3px)] pointer-events-none" />
                 </div>
                 <span class="mt-2 text-muted text-sm uppercase tracking-widest">
                   Roll
@@ -318,19 +321,24 @@ function App() {
 
               {/* YAW (compass dial) */}
               <div class="dial text-center flex flex-col items-center">
-                <div class="w-36 h-36 bg-header-bg border border-border rounded-full relative flex items-center justify-center overflow-hidden">
-                  <div
-                    class="absolute w-[160%] h-[160%] border-[2px] border-border rounded-full animate-spin-slow"
-                    style={{
-                      background:
-                        "repeating-linear-gradient(0deg, transparent, transparent 29%, #31748f 30%, #31748f 31%)",
-                      transform: "rotate(60deg)",
-                    }}
-                  ></div>
-                  <span class="absolute text-text text-base font-semibold">
-                    060°
-                  </span>
+                <div class="w-[146px] h-[146px] bg-header-bg border border-border rounded-full overflow-hidden relative">
+                  {/* Rotating compass ring */}
+                  <YawGauge class="rotate-[0deg] transition-all" />
+
+                  {/* Fixed direction pointer */}
+                  <div class="absolute top-[2px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[10px] border-r-[10px] border-t-[10px] border-transparent border-t-primary" />
+
+                  {/* Current degree text */}
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <span class="text-white text-2xl font-bold">120°</span>
+                  </div>
+
+                  {/* Vignette & scanline overlays (same as pitch/roll) */}
+                  <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_60%,#000_100%)] opacity-40 pointer-events-none z-20"></div>
+                  <div class="absolute inset-0 bg-[repeating-linear-gradient(to_bottom,rgba(255,255,255,0.02)_0,rgba(255,255,255,0.02)_1px,transparent_1px,transparent_3px)] pointer-events-none" />
                 </div>
+
+                {/* Label */}
                 <span class="mt-2 text-muted text-sm uppercase tracking-widest">
                   Yaw
                 </span>
