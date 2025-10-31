@@ -12,6 +12,9 @@ import TurnRight from "./assets/icons/turn_right.svg";
 import ChevronRightIcon from "./assets/icons/double_chevron_right.svg";
 import ReturnIcon from "./assets/icons/return.svg";
 
+import PitchRollGauge from "./assets/roll gauge.svg";
+import YawGauge from "./assets/yaw gauge.svg";
+
 import Panel from "./Panel";
 import { createSignal, onCleanup, createEffect } from "solid-js";
 import { invoke } from "@tauri-apps/api/core";
