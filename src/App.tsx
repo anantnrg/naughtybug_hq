@@ -14,7 +14,7 @@ import ReturnIcon from "./assets/icons/return.svg";
 import YawGauge from "./assets/yaw gauge.svg";
 
 import Panel from "./Panel";
-import { createSignal, onCleanup, createEffect } from "solid-js";
+import { createSignal, onCleanup, createEffect, onMount } from "solid-js";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 
@@ -151,16 +151,9 @@ function App() {
     setLogs((prev) => [...prev, { level: "ERROR", text: params.error }]);
   });
 
-  function polarToCartesian(cx, cy, r, angleDeg) {
-    const rad = (angleDeg * Math.PI) / 180;
-    return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
-  }
-
-  function colorFor(percent) {
-    if (percent < 20) return "#ff2f2f";
-    if (percent < 50) return "#ffaa00";
-    return "#22ff55";
-  }
+  onMount(() => {
+    const btn_up = document.getElementById("btn-up");
+  });
 
   return (
     <main class="bg-bg h-screen w-screen flex flex-col p-3 items-center justify-center gap-y-3 overflow-hidden">
@@ -169,6 +162,14 @@ function App() {
         <span class="text-2xl text-heading uppercase font-semibold tracking-wider">
           AN-X8 MK III
         </span>
+        <div class="flex gap-4 h-full w-auto px-5 items-center justify-center">
+          <div class="text-heading text-xl tracking-wider uppercase font-bold border-b-2 border-heading py-2 px-4">
+            CONTROLS
+          </div>
+          <div class="text-text text-xl tracking-wider uppercase border-b-2 border-text heading py-2 px-4">
+            PROGRAMMING
+          </div>
+        </div>
         <div
           onClick={async () => {
             try {
@@ -196,7 +197,6 @@ function App() {
       <div class="w-full h-full flex gap-x-3 overflow-hidden">
         {/* LEFT COLUMN */}
         <div class="w-3/5 h-full flex flex-col gap-y-3">
-          {/* MOVEMENT CONTROL PANEL (shorter now) */}
           <Panel
             title="Movement Control"
             class="flex flex-col items-center justify-between relative h-[60%]"
