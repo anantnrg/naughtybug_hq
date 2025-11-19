@@ -14,13 +14,13 @@ import ReturnIcon from "./assets/icons/return.svg";
 import YawGauge from "./assets/yaw gauge.svg";
 
 import Panel from "./Panel";
-import { createSignal, onCleanup, createEffect, onMount } from "solid-js";
+import { createSignal, onCleanup, createEffect, onMount, For } from "solid-js";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 
 function App() {
   const [connected, setConnected] = createSignal(false);
-  const [tab, setTab] = createSignal("controls");
+  const [tab, setTab] = createSignal("programming");
   const [shiftPressed, setShiftPressed] = createSignal(false);
   const [logs, setLogs] = createSignal([
     { level: "INFO", text: "Not connected to NaughtyBug." },
@@ -543,7 +543,30 @@ function App() {
           </div>
         </div>
       ) : (
-        <div class="w-full h-full flex gap-x-3 overflow-hidden"></div>
+        <div class="w-full h-full flex flex-col gap-3 overflow-hidden">
+          <div class="w-full h-2/5 flex shrink-0 gap-3">
+            <For each={["fl", "fr", "bl", "br"]}>
+              {(item) => (
+                <Panel
+                  title={
+                    {
+                      fl: "Front-Left",
+                      fr: "Front-Right",
+                      bl: "Back-Left",
+                      br: "Back-Right",
+                    }[item]
+                  }
+                  title_center={true}
+                >
+                  {item}
+                </Panel>
+              )}
+            </For>
+          </div>
+          <div class="w-full h-full flex gap-3">
+            <Panel title="Editor">f</Panel>
+          </div>
+        </div>
       )}
     </main>
   );
