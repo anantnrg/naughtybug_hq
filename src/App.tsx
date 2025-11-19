@@ -20,6 +20,7 @@ import { listen } from "@tauri-apps/api/event";
 
 function App() {
   const [connected, setConnected] = createSignal(false);
+  const [tab, setTab] = createSignal("controls");
   const [shiftPressed, setShiftPressed] = createSignal(false);
   const [logs, setLogs] = createSignal([
     { level: "INFO", text: "Not connected to NaughtyBug." },
@@ -163,10 +164,16 @@ function App() {
           AN-X8 MK III
         </span>
         <div class="flex gap-4 h-full w-auto px-5 items-center justify-center">
-          <div class="text-heading text-xl tracking-wider uppercase font-bold border-b-2 border-heading py-2 px-4">
+          <div
+            class={`${tab() === "controls" ? "text-heading border-heading font-bold" : "text-text border-text"} text-xl tracking-wider uppercase border-b-2  py-2 px-4  hover:border-heading transition-all`}
+            onClick={() => setTab("controls")}
+          >
             CONTROLS
           </div>
-          <div class="text-text text-xl tracking-wider uppercase border-b-2 border-text heading py-2 px-4">
+          <div
+            class={`${tab() === "programming" ? "text-heading border-heading font-bold" : "text-text border-text"} text-xl tracking-wider uppercase border-b-2  py-2 px-4 hover:border-heading transition-all`}
+            onClick={() => setTab("programming")}
+          >
             PROGRAMMING
           </div>
         </div>
@@ -194,342 +201,350 @@ function App() {
       </div>
 
       {/* MAIN CONTENT */}
-      <div class="w-full h-full flex gap-x-3 overflow-hidden">
-        {/* LEFT COLUMN */}
-        <div class="w-3/5 h-full flex flex-col gap-y-3">
-          <Panel
-            title="Movement Control"
-            class="flex flex-col items-center justify-between relative h-[60%]"
-          >
-            <div class="flex-1 w-full flex items-center justify-center relative">
-              {/* D-PAD GRID */}
-              <div class="grid grid-cols-3 grid-rows-3 place-items-center gap-3">
-                <div></div>
-                <button
-                  id="btn-up"
-                  class="control-btn w-24 h-20 flex items-center justify-center"
-                >
-                  <ArrowUp class="w-8 h-8 text-text" />
-                </button>
-                <div></div>
-
-                <button
-                  id="btn-left"
-                  class="control-btn w-20 h-24 flex items-center justify-center"
-                >
-                  {shiftPressed() ? (
-                    <TurnLeft class="w-8 h-8 text-primary transition-colors duration-200" />
-                  ) : (
-                    <ArrowLeft class="w-8 h-8 text-text transition-colors duration-200" />
-                  )}
-                </button>
-
-                <button class="control-btn w-24 h-24 flex items-center justify-center">
-                  <StopIcon class="w-10 h-10 text-text" />
-                </button>
-
-                <button
-                  id="btn-right"
-                  class="control-btn w-20 h-24 flex items-center justify-center"
-                >
-                  {shiftPressed() ? (
-                    <TurnRight class="w-8 h-8 text-primary transition-colors duration-200" />
-                  ) : (
-                    <ArrowRight class="w-8 h-8 text-text transition-colors duration-200" />
-                  )}
-                </button>
-
-                <div></div>
-                <button
-                  id="btn-down"
-                  class="control-btn w-24 h-20 flex items-center justify-center"
-                >
-                  <ArrowDown class="w-8 h-8 text-text" />
-                </button>
-                <div></div>
-              </div>
-
-              {/* ACTION BUTTONS */}
-              <div class="absolute inset-0 flex items-center justify-between pointer-events-none px-20">
-                <div class="flex flex-col gap-y-36 pointer-events-auto">
-                  <button class="action-btn">Sit</button>
-                  <button class="action-btn">Stand</button>
-                </div>
-                <div class="flex flex-col gap-y-36 pointer-events-auto">
-                  <button class="action-btn">Wave</button>
-                  <button class="action-btn">Dance</button>
-                </div>
-              </div>
-            </div>
-          </Panel>
-
-          <Panel
-            title="System Monitor"
-            class="flex flex-col items-center justify-center h-[40%]"
-          >
-            <div class="w-full h-full flex items-center justify-evenly">
-              {/* PITCH */}
-              <div class="dial text-center flex flex-col items-center">
-                <div class="w-36 h-36 bg-header-bg border border-border rounded-full overflow-hidden relative">
-                  {/* artificial horizon */}
-                  <div
-                    class="absolute inset-0 transition-transform duration-300"
-                    style={{
-                      transform: "rotate(10deg)", // or whatever your live pitch/roll value is
-                    }}
+      {tab() === "controls" ? (
+        <div class="w-full h-full flex gap-x-3 overflow-hidden">
+          {/* LEFT COLUMN */}
+          <div class="w-3/5 h-full flex flex-col gap-y-3">
+            <Panel
+              title="Movement Control"
+              class="flex flex-col items-center justify-between relative h-[60%]"
+            >
+              <div class="flex-1 w-full flex items-center justify-center relative">
+                {/* D-PAD GRID */}
+                <div class="grid grid-cols-3 grid-rows-3 place-items-center gap-3">
+                  <div></div>
+                  <button
+                    id="btn-up"
+                    class="control-btn w-24 h-20 flex items-center justify-center"
                   >
-                    {/* UPPER HALF — “SKY” */}
-                    <div class="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-[#0a0e1a] via-[#0d1840] to-[#142950] shadow-inner" />
+                    <ArrowUp class="w-8 h-8 text-text" />
+                  </button>
+                  <div></div>
 
-                    {/* LOWER HALF — “GROUND” */}
-                    <div class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-[#1a0b0b] via-[#2b0f0f] to-[#3b1414]" />
-
-                    {/* HORIZON LINE */}
-                    <div class="absolute top-1/2 left-0 w-full h-[2px] bg-primary animate-pulse shadow-[0_0_12px_#ff2f2f]" />
-                  </div>
-                  {/* degree display */}
-                  <div class="absolute inset-0 flex items-center justify-center">
-                    <span class="text-white text-2xl font-bold">+10°</span>
-                  </div>
-                  <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_60%,#000_100%)] opacity-40 pointer-events-none"></div>
-                  <div class="absolute inset-0 bg-[repeating-linear-gradient(to_bottom,rgba(255,255,255,0.02)_0,rgba(255,255,255,0.02)_1px,transparent_1px,transparent_3px)] pointer-events-none" />
-                </div>
-                <span class="mt-2 text-muted text-sm uppercase tracking-widest">
-                  Pitch
-                </span>
-              </div>
-
-              {/* ROLL */}
-              <div class="dial text-center flex flex-col items-center">
-                <div class="w-36 h-36 bg-header-bg border border-border rounded-full overflow-hidden relative">
-                  {/* artificial horizon */}
-                  <div
-                    class="absolute inset-0 transition-transform duration-300"
-                    style={{
-                      transform: "rotate(-20deg)", // or whatever your live pitch/roll value is
-                    }}
+                  <button
+                    id="btn-left"
+                    class="control-btn w-20 h-24 flex items-center justify-center"
                   >
-                    {/* UPPER HALF — “SKY” */}
-                    <div class="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-[#0a0e1a] via-[#0d1840] to-[#142950] shadow-inner" />
+                    {shiftPressed() ? (
+                      <TurnLeft class="w-8 h-8 text-primary transition-colors duration-200" />
+                    ) : (
+                      <ArrowLeft class="w-8 h-8 text-text transition-colors duration-200" />
+                    )}
+                  </button>
 
-                    {/* LOWER HALF — “GROUND” */}
-                    <div class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-[#1a0b0b] via-[#2b0f0f] to-[#3b1414]" />
+                  <button class="control-btn w-24 h-24 flex items-center justify-center">
+                    <StopIcon class="w-10 h-10 text-text" />
+                  </button>
 
-                    {/* HORIZON LINE */}
-                    <div class="absolute top-1/2 left-0 w-full h-[2px] bg-primary animate-pulse shadow-[0_0_12px_#ff2f2f]" />
-                  </div>
-                  {/* degree display */}
-                  <div class="absolute inset-0 flex items-center justify-center">
-                    <span class="text-white text-2xl font-bold">-20°</span>
-                  </div>
-                  <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_60%,#000_100%)] opacity-40 pointer-events-none"></div>
-                  <div class="absolute inset-0 bg-[repeating-linear-gradient(to_bottom,rgba(255,255,255,0.02)_0,rgba(255,255,255,0.02)_1px,transparent_1px,transparent_3px)] pointer-events-none" />
-                </div>
-                <span class="mt-2 text-muted text-sm uppercase tracking-widest">
-                  Roll
-                </span>
-              </div>
+                  <button
+                    id="btn-right"
+                    class="control-btn w-20 h-24 flex items-center justify-center"
+                  >
+                    {shiftPressed() ? (
+                      <TurnRight class="w-8 h-8 text-primary transition-colors duration-200" />
+                    ) : (
+                      <ArrowRight class="w-8 h-8 text-text transition-colors duration-200" />
+                    )}
+                  </button>
 
-              {/* YAW (compass dial) */}
-              <div class="dial text-center flex flex-col items-center">
-                <div class="w-[146px] h-[146px] bg-header-bg border border-border rounded-full overflow-hidden relative">
-                  {/* Rotating compass ring */}
-                  <YawGauge class="rotate-[0deg] transition-all" />
-
-                  {/* Fixed direction pointer */}
-                  <div class="absolute top-[2px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[10px] border-r-[10px] border-t-[10px] border-transparent border-t-primary" />
-
-                  {/* Current degree text */}
-                  <div class="absolute inset-0 flex items-center justify-center">
-                    <span class="text-white text-2xl font-bold">120°</span>
-                  </div>
-
-                  {/* Vignette & scanline overlays (same as pitch/roll) */}
-                  <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_60%,#000_100%)] opacity-40 pointer-events-none z-20"></div>
-                  <div class="absolute inset-0 bg-[repeating-linear-gradient(to_bottom,rgba(255,255,255,0.02)_0,rgba(255,255,255,0.02)_1px,transparent_1px,transparent_3px)] pointer-events-none" />
+                  <div></div>
+                  <button
+                    id="btn-down"
+                    class="control-btn w-24 h-20 flex items-center justify-center"
+                  >
+                    <ArrowDown class="w-8 h-8 text-text" />
+                  </button>
+                  <div></div>
                 </div>
 
-                {/* Label */}
-                <span class="mt-2 text-muted text-sm uppercase tracking-widest">
-                  Yaw
-                </span>
+                {/* ACTION BUTTONS */}
+                <div class="absolute inset-0 flex items-center justify-between pointer-events-none px-20">
+                  <div class="flex flex-col gap-y-36 pointer-events-auto">
+                    <button class="action-btn">Sit</button>
+                    <button class="action-btn">Stand</button>
+                  </div>
+                  <div class="flex flex-col gap-y-36 pointer-events-auto">
+                    <button class="action-btn">Wave</button>
+                    <button class="action-btn">Dance</button>
+                  </div>
+                </div>
               </div>
-            </div>
-          </Panel>
-        </div>
+            </Panel>
 
-        {/* RIGHT COLUMN */}
-        <div class="w-2/5 h-full flex flex-col gap-y-3 overflow-hidden">
-          <Panel
-            title="Configuration"
-            class="h-1/2 flex flex-col justify-between"
-          >
-            {/* GRID FOR 6 SLIDERS */}
-            <div class="grid grid-cols-2 gap-x-6 gap-y-6 flex-1 px-4 pt-4">
-              {[
-                {
-                  id: "SETLS",
-                  label: "Set Leg Move Speed",
-                  signal: "legSpeed",
-                },
-                {
-                  id: "SETBS",
-                  label: "Set Body Move Speed",
-                  signal: "bodySpeed",
-                },
-                {
-                  id: "SETAZP",
-                  label: "Set Absolute Z Position",
-                  signal: "absZ",
-                },
-                {
-                  id: "SETDZP",
-                  label: "Set Default Z Position",
-                  signal: "defZ",
-                },
-                {
-                  id: "SETDXP",
-                  label: "Set Default X Position",
-                  signal: "defX",
-                },
-                { id: "SETSYP", label: "Set Step Y Position", signal: "stepY" },
-              ].map((item) => (
-                <div class="flex flex-col gap-y-1">
-                  <div class="flex items-center justify-between text-xs uppercase text-muted tracking-widest">
-                    <span>{item.label}</span>
-                    <span
-                      id={`val-${item.signal}`}
-                      class="text-primary font-semibold"
+            <Panel
+              title="System Monitor"
+              class="flex flex-col items-center justify-center h-[40%]"
+            >
+              <div class="w-full h-full flex items-center justify-evenly">
+                {/* PITCH */}
+                <div class="dial text-center flex flex-col items-center">
+                  <div class="w-36 h-36 bg-header-bg border border-border rounded-full overflow-hidden relative">
+                    {/* artificial horizon */}
+                    <div
+                      class="absolute inset-0 transition-transform duration-300"
+                      style={{
+                        transform: "rotate(10deg)", // or whatever your live pitch/roll value is
+                      }}
                     >
-                      0.0
-                    </span>
+                      {/* UPPER HALF — “SKY” */}
+                      <div class="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-[#0a0e1a] via-[#0d1840] to-[#142950] shadow-inner" />
+
+                      {/* LOWER HALF — “GROUND” */}
+                      <div class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-[#1a0b0b] via-[#2b0f0f] to-[#3b1414]" />
+
+                      {/* HORIZON LINE */}
+                      <div class="absolute top-1/2 left-0 w-full h-[2px] bg-primary animate-pulse shadow-[0_0_12px_#ff2f2f]" />
+                    </div>
+                    {/* degree display */}
+                    <div class="absolute inset-0 flex items-center justify-center">
+                      <span class="text-white text-2xl font-bold">+10°</span>
+                    </div>
+                    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_60%,#000_100%)] opacity-40 pointer-events-none"></div>
+                    <div class="absolute inset-0 bg-[repeating-linear-gradient(to_bottom,rgba(255,255,255,0.02)_0,rgba(255,255,255,0.02)_1px,transparent_1px,transparent_3px)] pointer-events-none" />
                   </div>
-                  <input
-                    id={`slider-${item.signal}`}
-                    type="range"
-                    min="0"
-                    max="100"
-                    step="0.1"
-                    value="0"
-                    class="w-full appearance-none h-2 rounded-lg
+                  <span class="mt-2 text-muted text-sm uppercase tracking-widest">
+                    Pitch
+                  </span>
+                </div>
+
+                {/* ROLL */}
+                <div class="dial text-center flex flex-col items-center">
+                  <div class="w-36 h-36 bg-header-bg border border-border rounded-full overflow-hidden relative">
+                    {/* artificial horizon */}
+                    <div
+                      class="absolute inset-0 transition-transform duration-300"
+                      style={{
+                        transform: "rotate(-20deg)", // or whatever your live pitch/roll value is
+                      }}
+                    >
+                      {/* UPPER HALF — “SKY” */}
+                      <div class="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-[#0a0e1a] via-[#0d1840] to-[#142950] shadow-inner" />
+
+                      {/* LOWER HALF — “GROUND” */}
+                      <div class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-[#1a0b0b] via-[#2b0f0f] to-[#3b1414]" />
+
+                      {/* HORIZON LINE */}
+                      <div class="absolute top-1/2 left-0 w-full h-[2px] bg-primary animate-pulse shadow-[0_0_12px_#ff2f2f]" />
+                    </div>
+                    {/* degree display */}
+                    <div class="absolute inset-0 flex items-center justify-center">
+                      <span class="text-white text-2xl font-bold">-20°</span>
+                    </div>
+                    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_60%,#000_100%)] opacity-40 pointer-events-none"></div>
+                    <div class="absolute inset-0 bg-[repeating-linear-gradient(to_bottom,rgba(255,255,255,0.02)_0,rgba(255,255,255,0.02)_1px,transparent_1px,transparent_3px)] pointer-events-none" />
+                  </div>
+                  <span class="mt-2 text-muted text-sm uppercase tracking-widest">
+                    Roll
+                  </span>
+                </div>
+
+                {/* YAW (compass dial) */}
+                <div class="dial text-center flex flex-col items-center">
+                  <div class="w-[146px] h-[146px] bg-header-bg border border-border rounded-full overflow-hidden relative">
+                    {/* Rotating compass ring */}
+                    <YawGauge class="rotate-[0deg] transition-all" />
+
+                    {/* Fixed direction pointer */}
+                    <div class="absolute top-[2px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[10px] border-r-[10px] border-t-[10px] border-transparent border-t-primary" />
+
+                    {/* Current degree text */}
+                    <div class="absolute inset-0 flex items-center justify-center">
+                      <span class="text-white text-2xl font-bold">120°</span>
+                    </div>
+
+                    {/* Vignette & scanline overlays (same as pitch/roll) */}
+                    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_60%,#000_100%)] opacity-40 pointer-events-none z-20"></div>
+                    <div class="absolute inset-0 bg-[repeating-linear-gradient(to_bottom,rgba(255,255,255,0.02)_0,rgba(255,255,255,0.02)_1px,transparent_1px,transparent_3px)] pointer-events-none" />
+                  </div>
+
+                  {/* Label */}
+                  <span class="mt-2 text-muted text-sm uppercase tracking-widest">
+                    Yaw
+                  </span>
+                </div>
+              </div>
+            </Panel>
+          </div>
+
+          {/* RIGHT COLUMN */}
+          <div class="w-2/5 h-full flex flex-col gap-y-3 overflow-hidden">
+            <Panel
+              title="Configuration"
+              class="h-1/2 flex flex-col justify-between"
+            >
+              {/* GRID FOR 6 SLIDERS */}
+              <div class="grid grid-cols-2 gap-x-6 gap-y-6 flex-1 px-4 pt-4">
+                {[
+                  {
+                    id: "SETLS",
+                    label: "Set Leg Move Speed",
+                    signal: "legSpeed",
+                  },
+                  {
+                    id: "SETBS",
+                    label: "Set Body Move Speed",
+                    signal: "bodySpeed",
+                  },
+                  {
+                    id: "SETAZP",
+                    label: "Set Absolute Z Position",
+                    signal: "absZ",
+                  },
+                  {
+                    id: "SETDZP",
+                    label: "Set Default Z Position",
+                    signal: "defZ",
+                  },
+                  {
+                    id: "SETDXP",
+                    label: "Set Default X Position",
+                    signal: "defX",
+                  },
+                  {
+                    id: "SETSYP",
+                    label: "Set Step Y Position",
+                    signal: "stepY",
+                  },
+                ].map((item) => (
+                  <div class="flex flex-col gap-y-1">
+                    <div class="flex items-center justify-between text-xs uppercase text-muted tracking-widest">
+                      <span>{item.label}</span>
+                      <span
+                        id={`val-${item.signal}`}
+                        class="text-primary font-semibold"
+                      >
+                        0.0
+                      </span>
+                    </div>
+                    <input
+                      id={`slider-${item.signal}`}
+                      type="range"
+                      min="0"
+                      max="100"
+                      step="0.1"
+                      value="0"
+                      class="w-full appearance-none h-2 rounded-lg
                            bg-header-bg border border-border cursor-pointer
                            accent-primary
                            [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4
                            [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:rounded-full
                            [&::-webkit-slider-runnable-track]:rounded-full
                             [&::-webkit-slider-runnable-track]:from-primary/80 [&::-webkit-slider-runnable-track]:to-header-bg"
-                    onInput={(e) => {
-                      const val = e.currentTarget.value;
-                      document.getElementById(
-                        `val-${item.signal}`,
-                      ).textContent = val;
-                      const percent = (parseFloat(val) / 100) * 100;
-                      e.currentTarget.style.background = `linear-gradient(to right, var(--color-primary) ${percent}%, var(--color-header-bg) ${percent}%)`;
-                    }}
-                  />
-                </div>
-              ))}
-            </div>
+                      onInput={(e) => {
+                        const val = e.currentTarget.value;
+                        document.getElementById(
+                          `val-${item.signal}`,
+                        ).textContent = val;
+                        const percent = (parseFloat(val) / 100) * 100;
+                        e.currentTarget.style.background = `linear-gradient(to right, var(--color-primary) ${percent}%, var(--color-header-bg) ${percent}%)`;
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
 
-            {/* BLUETOOTH + SET BUTTON ROW */}
-            <div class="flex items-center justify-between mt-4 px-4 pb-4">
-              {/* Toggle */}
-              <div class="flex items-center gap-x-3">
-                <span class="text-xs uppercase text-muted tracking-widest">
-                  Bluetooth
-                </span>
-                <label class="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    value=""
-                    class="sr-only peer"
-                    id="bt-toggle"
-                  />
-                  <div
-                    class="w-12 h-6 bg-header-bg border border-border peer-focus:outline-none
+              {/* BLUETOOTH + SET BUTTON ROW */}
+              <div class="flex items-center justify-between mt-4 px-4 pb-4">
+                {/* Toggle */}
+                <div class="flex items-center gap-x-3">
+                  <span class="text-xs uppercase text-muted tracking-widest">
+                    Bluetooth
+                  </span>
+                  <label class="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      value=""
+                      class="sr-only peer"
+                      id="bt-toggle"
+                    />
+                    <div
+                      class="w-12 h-6 bg-header-bg border border-border peer-focus:outline-none
                            rounded-full peer peer-checked:bg-primary transition-colors duration-200"
-                  ></div>
-                  <span
-                    class="absolute left-[4px] top-[3px] w-[18px] h-[18px] bg-muted rounded-full
+                    ></div>
+                    <span
+                      class="absolute left-[4px] top-[3px] w-[18px] h-[18px] bg-muted rounded-full
                            transition-all duration-200 peer-checked:translate-x-6 peer-checked:bg-bg"
-                  ></span>
-                </label>
-              </div>
+                    ></span>
+                  </label>
+                </div>
 
-              {/* Set Button */}
-              <button
-                class="bg-header-bg border border-border text-text uppercase tracking-widest text-sm px-6 py-2
+                {/* Set Button */}
+                <button
+                  class="bg-header-bg border border-border text-text uppercase tracking-widest text-sm px-6 py-2
                        hover:bg-primary hover:text-bg transition-colors duration-200 font-semibold"
-                onClick={async () => {
-                  const commands = [
-                    `SETLS ${document.getElementById("val-legSpeed")?.textContent}`,
-                    `SETBS ${document.getElementById("val-bodySpeed")?.textContent}`,
-                    `SETAZP ${document.getElementById("val-absZ")?.textContent}`,
-                    `SETDZP ${document.getElementById("val-defZ")?.textContent}`,
-                    `SETDXP ${document.getElementById("val-defX")?.textContent}`,
-                    `SETSYP ${document.getElementById("val-stepY")?.textContent}`,
-                    document.getElementById("bt-toggle")?.checked
-                      ? "ENABLE_BT"
-                      : "DISABLE_BT",
-                  ];
-                  for (const cmd of commands) {
-                    try {
-                      await invoke("send_command", { cmd });
-                      console.log("Sent:", cmd);
-                    } catch (err) {
-                      console.error("Error sending:", err);
+                  onClick={async () => {
+                    const commands = [
+                      `SETLS ${document.getElementById("val-legSpeed")?.textContent}`,
+                      `SETBS ${document.getElementById("val-bodySpeed")?.textContent}`,
+                      `SETAZP ${document.getElementById("val-absZ")?.textContent}`,
+                      `SETDZP ${document.getElementById("val-defZ")?.textContent}`,
+                      `SETDXP ${document.getElementById("val-defX")?.textContent}`,
+                      `SETSYP ${document.getElementById("val-stepY")?.textContent}`,
+                      document.getElementById("bt-toggle")?.checked
+                        ? "ENABLE_BT"
+                        : "DISABLE_BT",
+                    ];
+                    for (const cmd of commands) {
+                      try {
+                        await invoke("send_command", { cmd });
+                        console.log("Sent:", cmd);
+                      } catch (err) {
+                        console.error("Error sending:", err);
+                      }
                     }
-                  }
-                }}
-              >
-                Set
-              </button>
-            </div>
-          </Panel>
-
-          <Panel
-            title="Command Uplink"
-            class="h-1/2 flex flex-col overflow-hidden"
-          >
-            <div
-              ref={logContainer}
-              class="flex-1 min-h-0 overflow-y-auto px-4 py-4 space-y-1 font-martian text-sm font-light flex flex-col"
-            >
-              {logs().map((log) => (
-                <span
-                  class={
-                    log.level === "CMD"
-                      ? "text-primary"
-                      : log.level === "ERROR"
-                        ? "text-danger"
-                        : "text-text"
-                  }
+                  }}
                 >
-                  [{log.level}] {log.text}
-                </span>
-              ))}
-            </div>
-            <div class="w-full h-16 flex items-center justify-center p-2 shrink-0">
-              <div class="flex w-full h-full bg-header-bg text-text border border-border">
-                <div class="flex items-center pl-2">
-                  <ChevronRightIcon class="w-5 h-5 text-text" />
-                </div>
-                <input
-                  type="text"
-                  class="flex-1 h-full bg-header-bg text-text pr-3 pl-2 outline-0 caret-w-[3px] caret-text animate-caret-blink"
-                  placeholder="ENTER A COMMAND"
-                  spellcheck={false}
-                  ref={inputRef}
-                  onKeyDown={handleInputKeyDown}
-                />
-                <div class="flex items-center pr-2">
-                  <ReturnIcon class="w-5 h-5 text-text" />
+                  Set
+                </button>
+              </div>
+            </Panel>
+
+            <Panel
+              title="Command Uplink"
+              class="h-1/2 flex flex-col overflow-hidden"
+            >
+              <div
+                ref={logContainer}
+                class="flex-1 min-h-0 overflow-y-auto px-4 py-4 space-y-1 font-martian text-sm font-light flex flex-col"
+              >
+                {logs().map((log) => (
+                  <span
+                    class={
+                      log.level === "CMD"
+                        ? "text-primary"
+                        : log.level === "ERROR"
+                          ? "text-danger"
+                          : "text-text"
+                    }
+                  >
+                    [{log.level}] {log.text}
+                  </span>
+                ))}
+              </div>
+              <div class="w-full h-16 flex items-center justify-center p-2 shrink-0">
+                <div class="flex w-full h-full bg-header-bg text-text border border-border">
+                  <div class="flex items-center pl-2">
+                    <ChevronRightIcon class="w-5 h-5 text-text" />
+                  </div>
+                  <input
+                    type="text"
+                    class="flex-1 h-full bg-header-bg text-text pr-3 pl-2 outline-0 caret-w-[3px] caret-text animate-caret-blink"
+                    placeholder="ENTER A COMMAND"
+                    spellcheck={false}
+                    ref={inputRef}
+                    onKeyDown={handleInputKeyDown}
+                  />
+                  <div class="flex items-center pr-2">
+                    <ReturnIcon class="w-5 h-5 text-text" />
+                  </div>
                 </div>
               </div>
-            </div>
-          </Panel>
+            </Panel>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div class="w-full h-full flex gap-x-3 overflow-hidden"></div>
+      )}
     </main>
   );
 }
