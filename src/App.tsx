@@ -580,15 +580,15 @@ function App() {
                       {/* XYZ INPUTS */}
                       <div class="flex gap-2 w-full">
                         <input
-                          class="input w-full h-10 text-center"
+                          class="input w-full h-10 text-center outline-0 active:border-heading"
                           placeholder="X"
                         />
                         <input
-                          class="input w-full h-10 text-center"
+                          class="input w-full h-10 text-center outline-0"
                           placeholder="Y"
                         />
                         <input
-                          class="input w-full h-10 text-center"
+                          class="input w-full h-10 text-center outline-0"
                           placeholder="Z"
                         />
                       </div>

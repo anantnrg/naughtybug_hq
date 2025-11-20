@@ -17,12 +17,8 @@
     --font-martian: "MartianMono NF";
 }
 
-.btn {
-    @apply bg-gray-700 text-white px-2 py-1 rounded;
-}
-
 .input {
-    @apply bg-gray-900 text-white px-1 py-1 rounded border border-gray-700;
+    @apply bg-button-bg border border-muted text-text px-1 py-1 rounded;
 }
 
 :root {
