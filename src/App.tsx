@@ -544,7 +544,7 @@ function App() {
         </div>
       ) : (
         <div class="w-full h-full flex flex-col gap-3 overflow-hidden">
-          <div class="w-full h-2/5 flex shrink-0 gap-3">
+          <div class="w-full h-1/2 flex shrink-0 gap-3">
             <For each={["fl", "fr", "bl", "br"]}>
               {(item) => (
                 <Panel
@@ -559,38 +559,49 @@ function App() {
                   title_center={true}
                 >
                   <div class="flex flex-col items-center gap-3 w-full h-full p-2">
-                    {/* 2x2 GRID */}
-                    <div class="grid grid-cols-2 gap-2 w-full h-full">
-                      <button class="control-btn w-full h-full flex items-center justify-center">
-                        Up
-                      </button>
-                      <button class="control-btn w-full h-full flex items-center justify-center">
-                        Forward
-                      </button>
+                    <div class="flex flex-col items-center gap-3 w-full h-full p-2">
+                      {/* 2x2 GRID */}
+                      <div class="grid grid-cols-2 gap-2 w-full">
+                        <button class="control-btn w-full h-14 flex items-center justify-center">
+                          Up
+                        </button>
+                        <button class="control-btn w-full h-14 flex items-center justify-center">
+                          Forward
+                        </button>
 
-                      <button class="control-btn w-full h-full flex items-center justify-center">
-                        Down
-                      </button>
-                      <button class="control-btn w-full h-full flex items-center justify-center">
-                        Back
-                      </button>
-                    </div>
+                        <button class="control-btn w-full h-14 flex items-center justify-center">
+                          Down
+                        </button>
+                        <button class="control-btn w-full h-14 flex items-center justify-center">
+                          Back
+                        </button>
+                      </div>
 
-                    {/* XYZ INPUTS */}
-                    <div class="flex gap-2">
-                      <input class="input w-full text-center" placeholder="X" />
-                      <input class="input w-full text-center" placeholder="Y" />
-                      <input class="input w-full text-center" placeholder="Z" />
-                    </div>
+                      {/* XYZ INPUTS */}
+                      <div class="flex gap-2 w-full">
+                        <input
+                          class="input w-full h-10 text-center"
+                          placeholder="X"
+                        />
+                        <input
+                          class="input w-full h-10 text-center"
+                          placeholder="Y"
+                        />
+                        <input
+                          class="input w-full h-10 text-center"
+                          placeholder="Z"
+                        />
+                      </div>
 
-                    {/* ACTION BUTTONS */}
-                    <div class="flex gap-3 w-full h-full">
-                      <button class="action-btn px-3 py-2 text-xs h-full w-full">
-                        Mid
-                      </button>
-                      <button class="action-btn px-4 py-2 text-xs h-full w-full">
-                        Go XYZ
-                      </button>
+                      {/* ACTION BUTTONS */}
+                      <div class="flex gap-3 w-full h-14">
+                        <button class="action-btn w-full h-full text-xs">
+                          Mid
+                        </button>
+                        <button class="action-btn w-full h-full text-xs">
+                          Go XYZ
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </Panel>
