@@ -558,13 +558,47 @@ function App() {
                   }
                   title_center={true}
                 >
-                  {item}
+                  <div class="flex flex-col items-center gap-3 w-full h-full p-2">
+                    {/* 2x2 GRID */}
+                    <div class="grid grid-cols-2 gap-2 w-full h-full">
+                      <button class="control-btn w-full h-full flex items-center justify-center">
+                        Up
+                      </button>
+                      <button class="control-btn w-full h-full flex items-center justify-center">
+                        Forward
+                      </button>
+
+                      <button class="control-btn w-full h-full flex items-center justify-center">
+                        Down
+                      </button>
+                      <button class="control-btn w-full h-full flex items-center justify-center">
+                        Back
+                      </button>
+                    </div>
+
+                    {/* XYZ INPUTS */}
+                    <div class="flex gap-2">
+                      <input class="input w-full text-center" placeholder="X" />
+                      <input class="input w-full text-center" placeholder="Y" />
+                      <input class="input w-full text-center" placeholder="Z" />
+                    </div>
+
+                    {/* ACTION BUTTONS */}
+                    <div class="flex gap-3 w-full h-full">
+                      <button class="action-btn px-3 py-2 text-xs h-full w-full">
+                        Mid
+                      </button>
+                      <button class="action-btn px-4 py-2 text-xs h-full w-full">
+                        Go XYZ
+                      </button>
+                    </div>
+                  </div>
                 </Panel>
               )}
             </For>
           </div>
           <div class="w-full h-full flex gap-3">
-            <Panel title="Editor">f</Panel>
+            <Panel title="Editor"></Panel>
           </div>
         </div>
       )}
