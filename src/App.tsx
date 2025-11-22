@@ -70,6 +70,10 @@ function App() {
     sendCommand(cmd);
   };
 
+  const stop = () => {
+    sendCommand("stop");
+  };
+
   // ------------------- Keyboard Mapping -------------------
   const getCommandForKey = (e: KeyboardEvent): string | null => {
     const key = e.key.toLowerCase();
@@ -266,7 +270,8 @@ function App() {
                   <button
                     id="btn-up"
                     class="control-btn w-24 h-20 flex items-center justify-center"
-                    onClick={() => sendCommand("")}
+                    onMouseDown={() => walk("f")}
+                    onMouseUp={() => stop()}
                   >
                     <ArrowUp class="w-8 h-8 text-text" />
                   </button>
@@ -275,6 +280,8 @@ function App() {
                   <button
                     id="btn-left"
                     class="control-btn w-20 h-24 flex items-center justify-center"
+                    onMouseDown={() => (shiftPressed() ? turn("l") : walk("L"))}
+                    onMouseUp={() => stop()}
                   >
                     {shiftPressed() ? (
                       <TurnLeft class="w-8 h-8 text-primary transition-colors duration-200" />
@@ -283,13 +290,18 @@ function App() {
                     )}
                   </button>
 
-                  <button class="control-btn w-24 h-24 flex items-center justify-center">
+                  <button
+                    class="control-btn w-24 h-24 flex items-center justify-center"
+                    onClick={() => stop()}
+                  >
                     <StopIcon class="w-10 h-10 text-text" />
                   </button>
 
                   <button
                     id="btn-right"
                     class="control-btn w-20 h-24 flex items-center justify-center"
+                    onMouseDown={() => (shiftPressed() ? turn("r") : walk("R"))}
+                    onMouseUp={() => stop()}
                   >
                     {shiftPressed() ? (
                       <TurnRight class="w-8 h-8 text-primary transition-colors duration-200" />
@@ -302,6 +314,8 @@ function App() {
                   <button
                     id="btn-down"
                     class="control-btn w-24 h-20 flex items-center justify-center"
+                    onMouseDown={() => walk("b")}
+                    onMouseUp={() => stop()}
                   >
                     <ArrowDown class="w-8 h-8 text-text" />
                   </button>
