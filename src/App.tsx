@@ -339,10 +339,30 @@ function App() {
                         TROT
                       </div>
                     </div>
-                    <button class="action-btn">Stand</button>
+                    <button class="action-btn gap-2 py-1">
+                      <span class="text-text font-semibold text-sm">Speed</span>
+                    </button>
                   </div>
                   <div class="flex flex-col gap-y-44 pointer-events-auto">
-                    <button class="action-btn">Wave</button>
+                    <div class="action-btn gap-2 py-1 flex">
+                      <span class="text-text font-semibold text-sm">Speed</span>
+                      <div class="h-full w-auto flex items-center justify-center">
+                        <input
+                          type="number"
+                          class="w-12 h-full focus:outline-0 text-center text-base"
+                          placeholder="4"
+                          value={speed()}
+                        />
+                        <div class="flex flex-col h-12 w-4 overflow-hidden">
+                          <button class="w-full h-6 flex items-center justify-centerp-0 leading-none">
+                            <ArrowUp class="h-6 w-6 text-text" />
+                          </button>
+                          <button class="w-full h-6 flex items-center justify-center p-0 leading-none">
+                            <ArrowDown class="h-6 w-6 text-text" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                     <button class="action-btn">Dance</button>
                   </div>
                 </div>
