@@ -19,6 +19,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 
 function App() {
+  // ------------------- Signals -------------------
   const [connected, setConnected] = createSignal(false);
   const [tab, setTab] = createSignal("programming");
   const [shiftPressed, setShiftPressed] = createSignal(false);
@@ -26,11 +27,18 @@ function App() {
     { level: "INFO", text: "Not connected to NaughtyBug." },
   ]);
 
+  // gait params (store individually)
+  const [mode, setMode] = createSignal<"crawl" | "trot">("crawl");
+  const [speed, setSpeed] = createSignal(0.01);
+  const [height, setHeight] = createSignal(25);
+  const [stepLength, setStepLength] = createSignal(80);
+
   let inputRef: HTMLInputElement | undefined;
   let logContainer: HTMLDivElement | undefined;
   let activeCmd: string | null = null;
   let queuedCmd: string | null = null;
 
+  // ------------------- Backend Connection -------------------
   listen<boolean>("connected", (e) => setConnected(e.payload));
 
   const sendCommand = async (cmd: string) => {
@@ -42,6 +50,27 @@ function App() {
     }
   };
 
+  // ------------------- Helpers -------------------
+  const walk = (dir: "f" | "b" | "L" | "R") => {
+    // build shorthand string with params
+    let cmd = `move ${dir === "f" ? "forward" : dir === "b" ? "backward" : dir === "L" ? "left" : "right"}`;
+    cmd += ` --mode ${mode()}`;
+    cmd += ` --speed ${speed()}`;
+    cmd += ` --height ${height()}`;
+    cmd += ` --step_length ${stepLength()}`;
+    sendCommand(cmd);
+  };
+
+  const turn = (dir: "l" | "r") => {
+    let cmd = `turn ${dir === "l" ? "left" : "right"}`;
+    cmd += ` --mode ${mode()}`;
+    cmd += ` --speed ${speed()}`;
+    cmd += ` --height ${height()}`;
+    cmd += ` --step_length ${stepLength()}`;
+    sendCommand(cmd);
+  };
+
+  // ------------------- Keyboard Mapping -------------------
   const getCommandForKey = (e: KeyboardEvent): string | null => {
     const key = e.key.toLowerCase();
     if (key === "w") return "move forward";
@@ -61,20 +90,29 @@ function App() {
   };
 
   const handleKeyDown = (e: KeyboardEvent) => {
-    const target = e.target as HTMLElement;
-    if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") return;
-
+    if (["INPUT", "TEXTAREA"].includes((e.target as HTMLElement).tagName))
+      return;
     const cmd = getCommandForKey(e);
     if (!cmd) return;
 
-    if (e.shiftKey) setShiftPressed(true);
-
-    const sel = cmdToSelector[cmd];
-    if (sel) document.querySelector(sel)?.classList.add("active-key");
+    setShiftPressed(e.shiftKey);
+    document.querySelector(cmdToSelector[cmd])?.classList.add("active-key");
 
     if (!activeCmd) {
       activeCmd = cmd;
-      sendCommand(cmd);
+      if (cmd.startsWith("move")) {
+        walk(
+          cmd.includes("forward")
+            ? "f"
+            : cmd.includes("backward")
+              ? "b"
+              : cmd.includes("left")
+                ? "L"
+                : "R",
+        );
+      } else if (cmd.startsWith("turn")) {
+        turn(cmd.includes("left") ? "l" : "r");
+      }
     } else if (activeCmd !== cmd) {
       queuedCmd = cmd;
       console.log("Queued:", queuedCmd);
@@ -82,16 +120,13 @@ function App() {
   };
 
   const handleKeyUp = (e: KeyboardEvent) => {
-    const target = e.target as HTMLElement;
-    if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") return;
-
+    if (["INPUT", "TEXTAREA"].includes((e.target as HTMLElement).tagName))
+      return;
     const cmd = getCommandForKey(e);
     if (!cmd) return;
 
-    if (!e.shiftKey) setShiftPressed(false);
-
-    const sel = cmdToSelector[cmd];
-    if (sel) document.querySelector(sel)?.classList.remove("active-key");
+    setShiftPressed(e.shiftKey);
+    document.querySelector(cmdToSelector[cmd])?.classList.remove("active-key");
 
     if (cmd === activeCmd) {
       sendCommand("stop");
@@ -99,7 +134,19 @@ function App() {
 
       if (queuedCmd) {
         activeCmd = queuedCmd;
-        sendCommand(activeCmd);
+        if (queuedCmd.startsWith("move")) {
+          walk(
+            queuedCmd.includes("forward")
+              ? "f"
+              : queuedCmd.includes("backward")
+                ? "b"
+                : queuedCmd.includes("left")
+                  ? "L"
+                  : "R",
+          );
+        } else if (queuedCmd.startsWith("turn")) {
+          turn(queuedCmd.includes("left") ? "l" : "r");
+        }
         queuedCmd = null;
       }
     } else if (cmd === queuedCmd) {
@@ -107,6 +154,7 @@ function App() {
     }
   };
 
+  // ------------------- Input Box -------------------
   const handleInputKeyDown = (e: KeyboardEvent) => {
     if (e.key === "Enter" && inputRef && inputRef.value.trim() !== "") {
       const cmd = inputRef.value.trim();
@@ -116,6 +164,7 @@ function App() {
     }
   };
 
+  // ------------------- Lifecycle -------------------
   window.addEventListener("keydown", handleKeyDown);
   window.addEventListener("keyup", handleKeyUp);
 
@@ -136,6 +185,7 @@ function App() {
     if (logContainer) logContainer.scrollTop = logContainer.scrollHeight;
   });
 
+  // ------------------- WS Listeners -------------------
   interface WsPacket {
     type: string;
     action: string;
@@ -216,6 +266,7 @@ function App() {
                   <button
                     id="btn-up"
                     class="control-btn w-24 h-20 flex items-center justify-center"
+                    onClick={() => sendCommand("")}
                   >
                     <ArrowUp class="w-8 h-8 text-text" />
                   </button>

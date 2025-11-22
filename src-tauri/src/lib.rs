@@ -5,7 +5,7 @@ use tauri::{AppHandle, Emitter};
 struct SendPacket {
     cmd: String,
     #[serde(flatten)]
-    params: Value,
+    params: Map<String, Value>,
 }
 
 fn parse_command(input: &str, app: AppHandle) -> Result<SendPacket, String> {
@@ -15,7 +15,6 @@ fn parse_command(input: &str, app: AppHandle) -> Result<SendPacket, String> {
 
     match action.as_str() {
         "move" => {
-            // map directions to short codes
             if let Some(dir) = parts.next() {
                 let dir_code = match dir.to_lowercase().as_str() {
                     "forward" => "f",
@@ -24,26 +23,44 @@ fn parse_command(input: &str, app: AppHandle) -> Result<SendPacket, String> {
                     "right" => "R",
                     _ => dir,
                 };
-                params.insert("dir".into(), Value::String(dir_code.to_string()));
+                params.insert("dir".to_string(), Value::String(dir_code.to_string()));
             }
-            // parse flags like --steps 10 --speed 0.01
+            // parse flags like --steps 10 --speed 0.01 --height 25 --step_length 100
             let mut iter = parts.peekable();
             while let Some(token) = iter.next() {
                 if token.starts_with("--") {
                     let key = token.trim_start_matches("--");
                     if let Some(val) = iter.peek() {
-                        params.insert(key.to_string(), Value::String(val.to_string()));
+                        // try to parse numbers
+                        if let Ok(n) = val.parse::<i64>() {
+                            params.insert(key.to_string(), Value::Number(n.into()));
+                        } else if let Ok(f) = val.parse::<f64>() {
+                            params.insert(
+                                key.to_string(),
+                                Value::Number(serde_json::Number::from_f64(f).unwrap()),
+                            );
+                        } else {
+                            params.insert(key.to_string(), Value::String(val.to_string()));
+                        }
                         iter.next();
                     }
                 }
             }
-            params.insert("mode".into(), Value::String("crawl".into())); // default
-            params.insert("steps".into(), Value::Number(10.into())); // default
-            params.insert("step_length".into(), Value::Number(80.into())); // default
-            return Ok(SendPacket {
-                cmd: "walk".into(),
-                params: Value::Object(params),
-            });
+            // defaults if not provided
+            params
+                .entry("mode".to_string())
+                .or_insert(Value::String("crawl".to_string()));
+            params
+                .entry("steps".to_string())
+                .or_insert(Value::Number(10.into()));
+            params
+                .entry("step_length".to_string())
+                .or_insert(Value::Number(80.into()));
+
+            Ok(SendPacket {
+                cmd: "walk".to_string(),
+                params,
+            })
         }
         "turn" => {
             if let Some(dir) = parts.next() {
@@ -52,31 +69,51 @@ fn parse_command(input: &str, app: AppHandle) -> Result<SendPacket, String> {
                     "right" => "r",
                     _ => dir,
                 };
-                params.insert("dir".into(), Value::String(dir_code.to_string()));
+                params.insert("dir".to_string(), Value::String(dir_code.to_string()));
             }
-            params.insert("mode".into(), Value::String("crawl".into()));
-            params.insert("steps".into(), Value::Number(10.into()));
-            params.insert("step_length".into(), Value::Number(80.into()));
-            return Ok(SendPacket {
-                cmd: "walk".into(),
-                params: Value::Object(params),
-            });
+            params
+                .entry("mode".to_string())
+                .or_insert(Value::String("crawl".to_string()));
+            params
+                .entry("steps".to_string())
+                .or_insert(Value::Number(10.into()));
+            params
+                .entry("step_length".to_string())
+                .or_insert(Value::Number(80.into()));
+
+            Ok(SendPacket {
+                cmd: "walk".to_string(),
+                params,
+            })
         }
-        "stop" => {
-            return Ok(SendPacket {
-                cmd: "stop".into(),
-                params: Value::Object(Map::new()),
-            });
-        }
-        "sit" | "stand" | "dance" | "wave" => {
-            return Ok(SendPacket {
-                cmd: action,
-                params: Value::Object(Map::new()),
-            });
-        }
+        "stop" => Ok(SendPacket {
+            cmd: "stop".to_string(),
+            params,
+        }),
+        "sit" | "stand" | "dance" | "wave" => Ok(SendPacket {
+            cmd: action,
+            params,
+        }),
         _ => {
             let _ = app.emit("ws_sent_invalid", &action);
-            return Err("Invalid action.".to_string());
+            Err("Invalid action.".to_string())
         }
     }
+}
+
+#[tauri::command]
+async fn send_command(app: AppHandle, cmd: String) -> Result<(), String> {
+    let packet = parse_command(&cmd, app)?;
+    let json = serde_json::to_string_pretty(&packet).unwrap();
+    println!("{}", json);
+    Ok(())
+}
+
+#[cfg_attr(mobile, tauri::mobile_entry_point)]
+pub fn run() {
+    tauri::Builder::default()
+        .invoke_handler(tauri::generate_handler![send_command])
+        .plugin(tauri_plugin_opener::init())
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
 }
