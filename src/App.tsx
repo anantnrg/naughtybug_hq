@@ -30,7 +30,7 @@ function App() {
   // gait params (store individually)
   const [mode, setMode] = createSignal<"crawl" | "trot">("crawl");
   const [speed, setSpeed] = createSignal(0.01);
-  const [height, setHeight] = createSignal(25);
+  const [height, setHeight] = createSignal(10);
   const [stepLength, setStepLength] = createSignal(80);
 
   let inputRef: HTMLInputElement | undefined;
@@ -374,11 +374,11 @@ function App() {
                               parseFloat(e.currentTarget.value),
                             );
                             if (isNaN(uiVal)) uiVal = 20; // default if blank/invalid
-                            if (uiVal < 10) uiVal = 10; // clamp to min
+                            if (uiVal < 20) uiVal = 20; // clamp to min
                             if (uiVal > 200) uiVal = 200; // clamp to max
                             setStepLength(uiVal);
                           }}
-                          min={10}
+                          min={20}
                           max={200}
                           step={20}
                           pattern="[0-9]*"
@@ -398,7 +398,7 @@ function App() {
                           <button
                             onClick={() => {
                               let uiVal = stepLength();
-                              if (uiVal > 10) uiVal -= 20;
+                              if (uiVal > 20) uiVal -= 20;
                               setStepLength(uiVal);
                             }}
                             class="w-full h-6 flex items-center justify-center p-0 leading-none"
@@ -467,13 +467,13 @@ function App() {
                         <input
                           type="number"
                           class="w-12 h-full focus:outline-0 text-center text-base"
-                          placeholder="25"
+                          placeholder="10"
                           value={height()}
                           onInput={(e) => {
                             let uiVal = Math.round(
                               parseFloat(e.currentTarget.value),
                             );
-                            if (isNaN(uiVal)) uiVal = 25; // default if blank/invalid
+                            if (isNaN(uiVal)) uiVal = 10; // default if blank/invalid
                             if (uiVal < 10) uiVal = 10; // clamp to min
                             if (uiVal > 80) uiVal = 80; // clamp to max
                             setHeight(uiVal);
