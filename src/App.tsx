@@ -206,9 +206,29 @@ function App() {
     setLogs((prev) => [...prev, { level: "ERROR", text: params.error }]);
   });
 
-  onMount(() => {
-    const btn_up = document.getElementById("btn-up");
-  });
+  const speedBackendToUI = (speed: number) => {
+    const minBackend = 0.002;
+    const maxBackend = 0.02;
+    const minUI = 1;
+    const maxUI = 8;
+
+    return (
+      minUI +
+      ((speed - minBackend) * (maxUI - minUI)) / (maxBackend - minBackend)
+    );
+  };
+
+  const speedUiToBackend = (speed: number) => {
+    const minBackend = 0.002;
+    const maxBackend = 0.02;
+    const minUI = 1;
+    const maxUI = 8;
+
+    return (
+      minBackend +
+      ((speed - minUI) * (maxBackend - minBackend)) / (maxUI - minUI)
+    );
+  };
 
   return (
     <main class="bg-bg h-screen w-screen flex flex-col p-3 items-center justify-center gap-y-3 overflow-hidden">
@@ -324,7 +344,7 @@ function App() {
 
                 {/* ACTION BUTTONS */}
                 <div class="absolute inset-0 flex items-center justify-between pointer-events-none px-8">
-                  <div class="flex flex-col gap-y-44 pointer-events-auto">
+                  <div class="flex flex-col gap-y-44 pointer-events-auto w-44">
                     <div class="action-btn gap-2 py-1">
                       <div
                         class={`w-1/2 h-full flex items-center justify-center px-6 transition-all duration-300 ${mode() === "crawl" ? "bg-primary text-bg" : ""}`}
@@ -339,22 +359,22 @@ function App() {
                         TROT
                       </div>
                     </div>
-                    <button class="action-btn gap-2 py-1">
-                      <span class="text-text font-semibold text-sm">Speed</span>
-                    </button>
-                  </div>
-                  <div class="flex flex-col gap-y-44 pointer-events-auto">
                     <div class="action-btn gap-2 py-1 flex">
-                      <span class="text-text font-semibold text-sm">Speed</span>
+                      <span class="text-text font-semibold text-sm">
+                        Step Length:
+                      </span>
                       <div class="h-full w-auto flex items-center justify-center">
                         <input
                           type="number"
                           class="w-12 h-full focus:outline-0 text-center text-base"
-                          placeholder="4"
-                          value={speed()}
+                          placeholder="80"
+                          value={stepLength()}
+                          onInput={(e) =>
+                            setStepLength(parseFloat(e.currentTarget.value))
+                          }
                         />
                         <div class="flex flex-col h-12 w-4 overflow-hidden">
-                          <button class="w-full h-6 flex items-center justify-centerp-0 leading-none">
+                          <button class="w-full h-6 flex items-center justify-center p-0 leading-none">
                             <ArrowUp class="h-6 w-6 text-text" />
                           </button>
                           <button class="w-full h-6 flex items-center justify-center p-0 leading-none">
@@ -363,7 +383,56 @@ function App() {
                         </div>
                       </div>
                     </div>
-                    <button class="action-btn">Dance</button>
+                  </div>
+                  <div class="flex flex-col gap-y-44 pointer-events-auto w-44">
+                    <div class="action-btn gap-2 py-1 flex ">
+                      <span class="text-text font-semibold text-sm">
+                        Speed:
+                      </span>
+                      <div class="h-full w-auto flex items-center justify-center">
+                        <input
+                          type="number"
+                          class="w-12 h-full focus:outline-0 text-center text-base"
+                          placeholder="4"
+                          value={speed()}
+                          onInput={(e) =>
+                            setSpeed(parseFloat(e.currentTarget.value))
+                          }
+                        />
+                        <div class="flex flex-col h-12 w-4 overflow-hidden">
+                          <button class="w-full h-6 flex items-center justify-center p-0 leading-none">
+                            <ArrowUp class="h-6 w-6 text-text" />
+                          </button>
+                          <button class="w-full h-6 flex items-center justify-center p-0 leading-none">
+                            <ArrowDown class="h-6 w-6 text-text" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="action-btn gap-2 py-1 flex">
+                      <span class="text-text font-semibold text-sm">
+                        Height:
+                      </span>
+                      <div class="h-full w-auto flex items-center justify-center">
+                        <input
+                          type="number"
+                          class="w-12 h-full focus:outline-0 text-center text-base"
+                          placeholder="25"
+                          value={height()}
+                          onInput={(e) =>
+                            setHeight(parseFloat(e.currentTarget.value))
+                          }
+                        />
+                        <div class="flex flex-col h-12 w-4 overflow-hidden">
+                          <button class="w-full h-6 flex items-center justify-center p-0 leading-none">
+                            <ArrowUp class="h-6 w-6 text-text" />
+                          </button>
+                          <button class="w-full h-6 flex items-center justify-center p-0 leading-none">
+                            <ArrowDown class="h-6 w-6 text-text" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
