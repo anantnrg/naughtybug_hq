@@ -40,18 +40,16 @@
     @apply bg-button-bg border border-border text-text flex items-center justify-center transition-all duration-150;
 }
 
-.control-btn:hover,
-.action-btn:hover {
+.control-btn:hover {
     @apply bg-primary/20 text-primary scale-[1.03];
 }
 
-.control-btn:active,
-.action-btn:active {
+.control-btn:active {
     @apply scale-95 bg-primary/30;
 }
 
 .action-btn {
-    @apply px-6 py-3 text-sm font-semibold uppercase tracking-wider;
+    @apply px-1 h-12 text-sm font-semibold uppercase tracking-wider;
 }
 
 .control-btn svg,

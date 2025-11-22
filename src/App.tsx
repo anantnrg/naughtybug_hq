@@ -21,7 +21,7 @@ import { listen } from "@tauri-apps/api/event";
 function App() {
   // ------------------- Signals -------------------
   const [connected, setConnected] = createSignal(false);
-  const [tab, setTab] = createSignal("programming");
+  const [tab, setTab] = createSignal("controls");
   const [shiftPressed, setShiftPressed] = createSignal(false);
   const [logs, setLogs] = createSignal([
     { level: "INFO", text: "Not connected to NaughtyBug." },
@@ -323,12 +323,25 @@ function App() {
                 </div>
 
                 {/* ACTION BUTTONS */}
-                <div class="absolute inset-0 flex items-center justify-between pointer-events-none px-20">
-                  <div class="flex flex-col gap-y-36 pointer-events-auto">
-                    <button class="action-btn">Sit</button>
+                <div class="absolute inset-0 flex items-center justify-between pointer-events-none px-8">
+                  <div class="flex flex-col gap-y-44 pointer-events-auto">
+                    <div class="action-btn gap-2 py-1">
+                      <div
+                        class={`w-1/2 h-full flex items-center justify-center px-6 transition-all duration-300 ${mode() === "crawl" ? "bg-primary text-bg" : ""}`}
+                        onClick={() => setMode("crawl")}
+                      >
+                        CRAWL
+                      </div>
+                      <div
+                        class={`w-1/2 h-full flex items-center justify-center px-6 transition-all duration-150 ${mode() === "trot" ? "bg-primary text-bg" : ""}`}
+                        onClick={() => setMode("trot")}
+                      >
+                        TROT
+                      </div>
+                    </div>
                     <button class="action-btn">Stand</button>
                   </div>
-                  <div class="flex flex-col gap-y-36 pointer-events-auto">
+                  <div class="flex flex-col gap-y-44 pointer-events-auto">
                     <button class="action-btn">Wave</button>
                     <button class="action-btn">Dance</button>
                   </div>
