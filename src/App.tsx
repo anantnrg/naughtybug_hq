@@ -212,9 +212,9 @@ function App() {
     const minUI = 1;
     const maxUI = 8;
 
-    return (
+    return Math.round(
       minUI +
-      ((speed - minBackend) * (maxUI - minUI)) / (maxBackend - minBackend)
+        ((speed - minBackend) * (maxUI - minUI)) / (maxBackend - minBackend),
     );
   };
 
@@ -369,16 +369,41 @@ function App() {
                           class="w-12 h-full focus:outline-0 text-center text-base"
                           placeholder="80"
                           value={stepLength()}
-                          onInput={(e) =>
-                            setStepLength(parseFloat(e.currentTarget.value))
-                          }
+                          onInput={(e) => {
+                            let uiVal = Math.round(
+                              parseFloat(e.currentTarget.value),
+                            );
+                            if (isNaN(uiVal)) uiVal = 20; // default if blank/invalid
+                            if (uiVal < 10) uiVal = 10; // clamp to min
+                            if (uiVal > 200) uiVal = 200; // clamp to max
+                            setStepLength(uiVal);
+                          }}
+                          min={10}
+                          max={200}
+                          step={20}
+                          pattern="[0-9]*"
                         />
                         <div class="flex flex-col h-12 w-4 overflow-hidden">
-                          <button class="w-full h-6 flex items-center justify-center p-0 leading-none">
-                            <ArrowUp class="h-6 w-6 text-text" />
+                          <button
+                            onClick={() => {
+                              let uiVal = stepLength();
+                              if (uiVal < 200) uiVal += 20;
+                              setStepLength(uiVal);
+                            }}
+                            class="w-full h-6 flex items-center justify-center p-0 leading-none"
+                          >
+                            <ArrowUp class="h-4 w-4 text-text" />
                           </button>
-                          <button class="w-full h-6 flex items-center justify-center p-0 leading-none">
-                            <ArrowDown class="h-6 w-6 text-text" />
+
+                          <button
+                            onClick={() => {
+                              let uiVal = stepLength();
+                              if (uiVal > 10) uiVal -= 20;
+                              setStepLength(uiVal);
+                            }}
+                            class="w-full h-6 flex items-center justify-center p-0 leading-none"
+                          >
+                            <ArrowDown class="h-4 w-4 text-text" />
                           </button>
                         </div>
                       </div>
@@ -394,17 +419,42 @@ function App() {
                           type="number"
                           class="w-12 h-full focus:outline-0 text-center text-base"
                           placeholder="4"
-                          value={speed()}
-                          onInput={(e) =>
-                            setSpeed(parseFloat(e.currentTarget.value))
-                          }
+                          value={speedBackendToUI(speed())}
+                          onInput={(e) => {
+                            let uiVal = Math.round(
+                              parseFloat(e.currentTarget.value),
+                            );
+                            if (isNaN(uiVal)) uiVal = 4;
+                            if (uiVal < 1) uiVal = 4;
+                            if (uiVal > 8) uiVal = 4;
+                            setSpeed(speedUiToBackend(uiVal));
+                          }}
+                          min={1}
+                          max={8}
+                          step={1}
+                          pattern="[0-9]*"
                         />
                         <div class="flex flex-col h-12 w-4 overflow-hidden">
-                          <button class="w-full h-6 flex items-center justify-center p-0 leading-none">
-                            <ArrowUp class="h-6 w-6 text-text" />
+                          <button
+                            onClick={() => {
+                              let uiVal = speedBackendToUI(speed());
+                              if (uiVal < 8) uiVal++;
+                              setSpeed(speedUiToBackend(uiVal));
+                            }}
+                            class="w-full h-6 flex items-center justify-center p-0 leading-none"
+                          >
+                            <ArrowUp class="h-4 w-4 text-text" />
                           </button>
-                          <button class="w-full h-6 flex items-center justify-center p-0 leading-none">
-                            <ArrowDown class="h-6 w-6 text-text" />
+
+                          <button
+                            onClick={() => {
+                              let uiVal = speedBackendToUI(speed());
+                              if (uiVal > 1) uiVal--;
+                              setSpeed(speedUiToBackend(uiVal));
+                            }}
+                            class="w-full h-6 flex items-center justify-center p-0 leading-none"
+                          >
+                            <ArrowDown class="h-4 w-4 text-text" />
                           </button>
                         </div>
                       </div>
@@ -419,16 +469,41 @@ function App() {
                           class="w-12 h-full focus:outline-0 text-center text-base"
                           placeholder="25"
                           value={height()}
-                          onInput={(e) =>
-                            setHeight(parseFloat(e.currentTarget.value))
-                          }
+                          onInput={(e) => {
+                            let uiVal = Math.round(
+                              parseFloat(e.currentTarget.value),
+                            );
+                            if (isNaN(uiVal)) uiVal = 25; // default if blank/invalid
+                            if (uiVal < 10) uiVal = 10; // clamp to min
+                            if (uiVal > 80) uiVal = 80; // clamp to max
+                            setHeight(uiVal);
+                          }}
+                          min={10}
+                          max={80}
+                          step={10}
+                          pattern="[0-9]*"
                         />
                         <div class="flex flex-col h-12 w-4 overflow-hidden">
-                          <button class="w-full h-6 flex items-center justify-center p-0 leading-none">
-                            <ArrowUp class="h-6 w-6 text-text" />
+                          <button
+                            onClick={() => {
+                              let uiVal = height();
+                              if (uiVal < 80) uiVal += 10;
+                              setHeight(uiVal);
+                            }}
+                            class="w-full h-6 flex items-center justify-center p-0 leading-none"
+                          >
+                            <ArrowUp class="h-4 w-4 text-text" />
                           </button>
-                          <button class="w-full h-6 flex items-center justify-center p-0 leading-none">
-                            <ArrowDown class="h-6 w-6 text-text" />
+
+                          <button
+                            onClick={() => {
+                              let uiVal = height();
+                              if (uiVal > 10) uiVal -= 10;
+                              setHeight(uiVal);
+                            }}
+                            class="w-full h-6 flex items-center justify-center p-0 leading-none"
+                          >
+                            <ArrowDown class="h-4 w-4 text-text" />
                           </button>
                         </div>
                       </div>

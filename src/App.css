@@ -87,3 +87,22 @@ input::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
+
+.stepper-btn svg {
+    @apply w-6 h-6;
+    fill: currentColor !important;
+    color: inherit !important;
+    transition:
+        color 0.15s ease,
+        fill 0.15s ease;
+}
+
+.stepper-btn svg * {
+    fill: currentColor !important;
+    stroke: currentColor !important;
+}
+
+.stepper-btn:hover svg {
+    color: var(--color-primary);
+    fill: var(--color-primary);
+}
