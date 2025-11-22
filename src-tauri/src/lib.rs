@@ -1,5 +1,5 @@
-use tauri::AppHandle;
-use serde_json::{Value, Map};
+use serde_json::{Map, Value};
+use tauri::{AppHandle, Emitter};
 
 #[derive(Debug, serde::Serialize)]
 struct SendPacket {
@@ -22,7 +22,7 @@ fn parse_command(input: &str, app: AppHandle) -> Result<SendPacket, String> {
                     "backward" => "b",
                     "left" => "L",
                     "right" => "R",
-                    _ => dir.as_str(),
+                    _ => dir,
                 };
                 params.insert("dir".into(), Value::String(dir_code.to_string()));
             }
@@ -38,29 +38,41 @@ fn parse_command(input: &str, app: AppHandle) -> Result<SendPacket, String> {
                 }
             }
             params.insert("mode".into(), Value::String("crawl".into())); // default
-            params.insert("steps".into(), Value::Number(10.into()));     // default
+            params.insert("steps".into(), Value::Number(10.into())); // default
             params.insert("step_length".into(), Value::Number(80.into())); // default
-            return Ok(SendPacket { cmd: "walk".into(), params: Value::Object(params) });
+            return Ok(SendPacket {
+                cmd: "walk".into(),
+                params: Value::Object(params),
+            });
         }
         "turn" => {
             if let Some(dir) = parts.next() {
                 let dir_code = match dir.to_lowercase().as_str() {
                     "left" => "l",
                     "right" => "r",
-                    _ => dir.as_str(),
+                    _ => dir,
                 };
                 params.insert("dir".into(), Value::String(dir_code.to_string()));
             }
             params.insert("mode".into(), Value::String("crawl".into()));
             params.insert("steps".into(), Value::Number(10.into()));
             params.insert("step_length".into(), Value::Number(80.into()));
-            return Ok(SendPacket { cmd: "walk".into(), params: Value::Object(params) });
+            return Ok(SendPacket {
+                cmd: "walk".into(),
+                params: Value::Object(params),
+            });
         }
         "stop" => {
-            return Ok(SendPacket { cmd: "stop".into(), params: Value::Object(Map::new()) });
+            return Ok(SendPacket {
+                cmd: "stop".into(),
+                params: Value::Object(Map::new()),
+            });
         }
         "sit" | "stand" | "dance" | "wave" => {
-            return Ok(SendPacket { cmd: action, params: Value::Object(Map::new()) });
+            return Ok(SendPacket {
+                cmd: action,
+                params: Value::Object(Map::new()),
+            });
         }
         _ => {
             let _ = app.emit("ws_sent_invalid", &action);
