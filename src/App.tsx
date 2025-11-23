@@ -273,7 +273,7 @@ function App() {
           {connected() ? (
             <span class="text-lg text-heading uppercase flex gap-x-1 items-center justify-center">
               <ConnectedIcon class="w-5" />
-              <span>Connected</span>
+              <span>Connected [{selectedPort()}]</span>
             </span>
           ) : (
             <span class="text-lg text-danger uppercase flex gap-x-1 items-center justify-center">

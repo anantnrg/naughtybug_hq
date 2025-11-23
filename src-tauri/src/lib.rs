@@ -149,13 +149,12 @@ async fn connect_bt(app: AppHandle, id: String) -> Result<(), String> {
             let state = app.state::<AppState>();
             let mut guard = state.bt_conn.lock().unwrap();
             *guard = Some(serial_port);
-            // optional: emit an event to frontend
-            let _ = app.emit("bt_connected", &id);
+            let _ = app.emit("connected", true);
             Ok(())
         }
         Err(e) => {
             eprintln!("Failed to open port {}: {}", id, e);
-            let _ = app.emit("bt_connect_failed", &id);
+            let _ = app.emit("connected", false);
             Err(e.to_string())
         }
     }
