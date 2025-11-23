@@ -141,11 +141,24 @@ async fn scan_ports(_: AppHandle) -> Result<Vec<PortInfo>, ()> {
 
 #[tauri::command]
 async fn connect_bt(app: AppHandle, id: String) -> Result<(), String> {
-    let serial_port = connect(&id).map_err(|e| e.to_string())?;
-    let state = app.state::<AppState>();
-    let mut guard = state.bt_conn.lock().unwrap();
-    *guard = Some(serial_port);
-    Ok(())
+    println!("Attempting to connect to port: {}", id);
+
+    match connect(&id) {
+        Ok(serial_port) => {
+            println!("Successfully opened port {}", id);
+            let state = app.state::<AppState>();
+            let mut guard = state.bt_conn.lock().unwrap();
+            *guard = Some(serial_port);
+            // optional: emit an event to frontend
+            let _ = app.emit("bt_connected", &id);
+            Ok(())
+        }
+        Err(e) => {
+            eprintln!("Failed to open port {}: {}", id, e);
+            let _ = app.emit("bt_connect_failed", &id);
+            Err(e.to_string())
+        }
+    }
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
