@@ -337,14 +337,11 @@ function App() {
             <div class="w-full h-14">
               <button
                 class="w-full h-full border border-border text-text tracking-widest text-xl uppercase flex items-center justify-center hover:bg-primary hover:text-bg transition-all duration-300  active:outline-0"
-                onClick={async () => {
-                  try {
-                    await invoke("connect_bt");
-                    setShowConnectModal(false);
-                  } catch (e) {
-                    console.error("Failed to connect: ", e);
-                  }
-                }}
+                onClick={async () =>
+                  await invoke("connect_bt").then(() =>
+                    setShowConnectModal(false),
+                  )
+                }
               >
                 Connect
               </button>
