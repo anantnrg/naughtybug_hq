@@ -119,7 +119,7 @@ fn parse_command(input: &str, app: AppHandle) -> Result<SendPacket, String> {
 #[tauri::command]
 async fn send_command(app: AppHandle, cmd: String) -> Result<(), String> {
     let packet = parse_command(&cmd, app.clone())?;
-    let json = serde_json::to_string_pretty(&packet).unwrap();
+    let json = serde_json::to_string(&packet).unwrap();
     println!("{}", json);
 
     let state = app.state::<AppState>();
@@ -214,7 +214,7 @@ fn list_ports() -> Vec<PortInfo> {
 }
 
 pub fn connect(port_name: &str) -> Result<Box<dyn SerialPort>, Box<dyn std::error::Error>> {
-    let port = serialport::new(port_name, 9600)
+    let port = serialport::new(port_name, 115200)
         .timeout(Duration::from_millis(2000))
         .open()?;
     Ok(port)
