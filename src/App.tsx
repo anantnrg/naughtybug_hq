@@ -26,6 +26,9 @@ function App() {
   const [logs, setLogs] = createSignal([
     { level: "INFO", text: "Not connected to NaughtyBug." },
   ]);
+  const [showConnectModal, setShowConnectModal] = createSignal(true);
+  const [ports, setPorts] = createSignal<string[]>([]);
+  const [selectedPort, setSelectedPort] = createSignal("");
 
   // gait params (store individually)
   const [mode, setMode] = createSignal<"crawl" | "trot">("crawl");
@@ -251,15 +254,7 @@ function App() {
             PROGRAMMING
           </div>
         </div>
-        <div
-          onClick={async () => {
-            try {
-              await invoke("connect");
-            } catch (err) {
-              console.error("Error sending command:", err);
-            }
-          }}
-        >
+        <div onClick={() => (!connected() ? setShowConnectModal(true) : {})}>
           {connected() ? (
             <span class="text-lg text-heading uppercase flex gap-x-1 items-center justify-center">
               <ConnectedIcon class="w-5" />
@@ -273,6 +268,23 @@ function App() {
           )}
         </div>
       </div>
+
+      {showConnectModal() && (
+        <div
+          class="w-screen h-screen fixed left-0 top-0 z-20 flex items-center justify-center
+                 bg-bg/90 transition-opacity duration-300 ease-out animate-fadeIn"
+        >
+          <div
+            class="w-40 h-40 bg-white rounded shadow-lg transform transition-transform duration-300 ease-out animate-scaleIn
+                   flex items-center justify-center"
+          >
+            <div
+              class="w-4 h-4 bg-red-500 cursor-pointer"
+              onClick={() => setShowConnectModal(false)}
+            ></div>
+          </div>
+        </div>
+      )}
 
       {/* MAIN CONTENT */}
       {tab() === "controls" ? (
