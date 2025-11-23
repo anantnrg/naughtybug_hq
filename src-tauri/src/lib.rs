@@ -117,3 +117,30 @@ pub fn run() {
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
+
+fn list_ports() -> Vec<String> {
+    match available_ports() {
+        Ok(ports) => {
+            ports.into_iter().map(|p| {
+                match p.port_type {
+                    SerialPortType::UsbPort(info) => {
+                        format!("{} (USB VID:{:04x} PID:{:04x})", p.port_name, info.vendor_id, info.product_id)
+                    }
+                    SerialPortType::BluetoothPort => {
+                        format!("{} (Bluetooth)", p.port_name)
+                    }
+                    SerialPortType::PciPort => {
+                        format!("{} (PCI)", p.port_name)
+                    }
+                    SerialPortType::Unknown => {
+                        format!("{} (Unknown)", p.port_name)
+                    }
+                }
+            }).collect()
+        }
+        Err(e) => {
+            eprintln!("Error listing ports: {:?}", e);
+            vec![]
+        }
+    }
+}
