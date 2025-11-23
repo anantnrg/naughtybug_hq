@@ -338,7 +338,7 @@ function App() {
               <button
                 class="w-full h-full border border-border text-text tracking-widest text-xl uppercase flex items-center justify-center hover:bg-primary hover:text-bg transition-all duration-300  active:outline-0"
                 onClick={async () =>
-                  await invoke("connect_bt").then(() =>
+                  await invoke("connect_bt", { id: selectedPort() }).then(() =>
                     setShowConnectModal(false),
                   )
                 }
