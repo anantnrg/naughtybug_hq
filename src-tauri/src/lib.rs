@@ -1,7 +1,14 @@
 use serde_json::{Map, Value};
-use serialport::{available_ports, DataBits, Parity, SerialPort, SerialPortType, StopBits};
-use std::time::Duration;
-use tauri::{AppHandle, Emitter};
+use serialport::{available_ports, SerialPort, SerialPortType};
+use std::{
+    sync::{Arc, Mutex},
+    time::Duration,
+};
+use tauri::{AppHandle, Emitter, Manager};
+
+struct AppState {
+    pub bt_conn: Arc<Mutex<Option<Box<dyn SerialPort>>>>,
+}
 
 #[derive(Debug, serde::Serialize)]
 struct SendPacket {
@@ -111,51 +118,79 @@ fn parse_command(input: &str, app: AppHandle) -> Result<SendPacket, String> {
 
 #[tauri::command]
 async fn send_command(app: AppHandle, cmd: String) -> Result<(), String> {
-    let packet = parse_command(&cmd, app)?;
+    let packet = parse_command(&cmd, app.clone())?;
     let json = serde_json::to_string_pretty(&packet).unwrap();
     println!("{}", json);
+
+    let state = app.state::<AppState>();
+    let mut guard = state.bt_conn.lock().unwrap();
+
+    if let Some(port) = guard.as_mut() {
+        port.write_all(json.as_bytes())
+            .map_err(|e| format!("Write failed: {}", e))?;
+        Ok(())
+    } else {
+        Err("No Bluetooth connection established".into())
+    }
+}
+
+#[tauri::command]
+async fn scan_ports(_: AppHandle) -> Result<Vec<PortInfo>, ()> {
+    Ok(list_ports())
+}
+
+#[tauri::command]
+async fn connect_bt(app: AppHandle, id: String) -> Result<(), String> {
+    let serial_port = connect(&id).map_err(|e| e.to_string())?;
+    let state = app.state::<AppState>();
+    let mut guard = state.bt_conn.lock().unwrap();
+    *guard = Some(serial_port);
     Ok(())
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let ports = list_ports();
-    if ports.is_empty() {
-        println!("No serial ports found.");
-    } else {
-        println!("Available ports:");
-        for p in ports {
-            println!("  {}", p);
-        }
-    }
-
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![send_command])
+        .setup(|app| {
+            app.manage(AppState {
+                bt_conn: Arc::new(Mutex::new(None)),
+            });
+            Ok(())
+        })
+        .invoke_handler(tauri::generate_handler![
+            send_command,
+            scan_ports,
+            connect_bt
+        ])
         .plugin(tauri_plugin_opener::init())
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
 
-fn list_ports() -> Vec<String> {
+fn list_ports() -> Vec<PortInfo> {
     match available_ports() {
         Ok(ports) => ports
             .into_iter()
             .map(|p| match p.port_type {
-                SerialPortType::UsbPort(info) => {
-                    format!(
+                SerialPortType::UsbPort(info) => PortInfo {
+                    id: p.port_name.clone(),
+                    display: format!(
                         "{} (USB VID:{:04x} PID:{:#?})",
                         p.port_name, info.vid, info.product
-                    )
-                }
-                SerialPortType::BluetoothPort => {
-                    format!("{} (Bluetooth)", p.port_name)
-                }
-                SerialPortType::PciPort => {
-                    format!("{} (PCI)", p.port_name)
-                }
-                SerialPortType::Unknown => {
-                    format!("{} (Unknown)", p.port_name)
-                }
+                    ),
+                },
+                SerialPortType::BluetoothPort => PortInfo {
+                    id: p.port_name.clone(),
+                    display: format!("{} (Bluetooth)", p.port_name),
+                },
+                SerialPortType::PciPort => PortInfo {
+                    id: p.port_name.clone(),
+                    display: format!("{} (PCI)", p.port_name),
+                },
+                SerialPortType::Unknown => PortInfo {
+                    id: p.port_name.clone(),
+                    display: format!("{} (Unknown)", p.port_name),
+                },
             })
             .collect(),
         Err(e) => {

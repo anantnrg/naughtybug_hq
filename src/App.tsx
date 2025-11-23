@@ -26,8 +26,8 @@ function App() {
   const [logs, setLogs] = createSignal([
     { level: "INFO", text: "Not connected to NaughtyBug." },
   ]);
-  const [showConnectModal, setShowConnectModal] = createSignal(true);
-  const [ports, setPorts] = createSignal<string[]>(["COM1", "COM2"]);
+  const [showConnectModal, setShowConnectModal] = createSignal(false);
+  const [ports, setPorts] = createSignal<Port[]>([]);
   const [showPortsModal, setShowPortsModal] = createSignal(false);
   const [selectedPort, setSelectedPort] = createSignal("");
 
@@ -234,6 +234,20 @@ function App() {
     );
   };
 
+  interface Port {
+    id: string;
+    display: string;
+  }
+
+  const getPorts = async () => {
+    try {
+      const ports = await invoke<Port[]>("scan_ports");
+      setPorts(ports);
+    } catch (err) {
+      console.error("Error scanning ports: ", err);
+    }
+  };
+
   return (
     <main class="bg-bg h-screen w-screen flex flex-col p-3 items-center justify-center gap-y-3 overflow-hidden">
       {/* HEADER */}
@@ -285,7 +299,10 @@ function App() {
             }}
           >
             <div class="w-full h-12 flex gap-4">
-              <button class="w-24 h-full px-2 flex items-center justify-center border border-border text-text tracking-wider text-lg uppercase hover:bg-primary hover:text-bg transition-all duration-300 shrink-0 active:outline-0">
+              <button
+                class="w-24 h-full px-2 flex items-center justify-center border border-border text-text tracking-wider text-lg uppercase hover:bg-primary hover:text-bg transition-all duration-300 shrink-0 active:outline-0"
+                onClick={() => getPorts()}
+              >
                 Scan
               </button>
               <div
@@ -305,9 +322,9 @@ function App() {
                       {(item) => (
                         <div
                           class="w-full h-10 flex hover:bg-primary/20 transition-all duration-300 text-text font-semibold tracking-wider items-center justify-start px-4"
-                          onClick={() => setSelectedPort(item)}
+                          onClick={() => setSelectedPort(item.id)}
                         >
-                          {item}
+                          {item.display}
                         </div>
                       )}
                     </For>
@@ -318,7 +335,17 @@ function App() {
               </div>
             </div>
             <div class="w-full h-14">
-              <button class="w-full h-full border border-border text-text tracking-widest text-xl uppercase flex items-center justify-center hover:bg-primary hover:text-bg transition-all duration-300  active:outline-0">
+              <button
+                class="w-full h-full border border-border text-text tracking-widest text-xl uppercase flex items-center justify-center hover:bg-primary hover:text-bg transition-all duration-300  active:outline-0"
+                onClick={async () => {
+                  try {
+                    await invoke("connect_bt");
+                    setShowConnectModal(false);
+                  } catch (e) {
+                    console.error("Failed to connect: ", e);
+                  }
+                }}
+              >
                 Connect
               </button>
             </div>
