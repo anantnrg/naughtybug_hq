@@ -1,4 +1,6 @@
 use serde_json::{Map, Value};
+use serialport::{available_ports, DataBits, Parity, SerialPort, SerialPortType, StopBits};
+use std::time::Duration;
 use tauri::{AppHandle, Emitter};
 
 #[derive(Debug, serde::Serialize)]
@@ -6,6 +8,12 @@ struct SendPacket {
     cmd: String,
     #[serde(flatten)]
     params: Map<String, Value>,
+}
+
+#[derive(serde::Serialize, serde::Deserialize)]
+pub struct PortInfo {
+    pub id: String,
+    pub display: String,
 }
 
 fn parse_command(input: &str, app: AppHandle) -> Result<SendPacket, String> {
@@ -111,6 +119,16 @@ async fn send_command(app: AppHandle, cmd: String) -> Result<(), String> {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    let ports = list_ports();
+    if ports.is_empty() {
+        println!("No serial ports found.");
+    } else {
+        println!("Available ports:");
+        for p in ports {
+            println!("  {}", p);
+        }
+    }
+
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![send_command])
         .plugin(tauri_plugin_opener::init())
@@ -120,27 +138,36 @@ pub fn run() {
 
 fn list_ports() -> Vec<String> {
     match available_ports() {
-        Ok(ports) => {
-            ports.into_iter().map(|p| {
-                match p.port_type {
-                    SerialPortType::UsbPort(info) => {
-                        format!("{} (USB VID:{:04x} PID:{:04x})", p.port_name, info.vendor_id, info.product_id)
-                    }
-                    SerialPortType::BluetoothPort => {
-                        format!("{} (Bluetooth)", p.port_name)
-                    }
-                    SerialPortType::PciPort => {
-                        format!("{} (PCI)", p.port_name)
-                    }
-                    SerialPortType::Unknown => {
-                        format!("{} (Unknown)", p.port_name)
-                    }
+        Ok(ports) => ports
+            .into_iter()
+            .map(|p| match p.port_type {
+                SerialPortType::UsbPort(info) => {
+                    format!(
+                        "{} (USB VID:{:04x} PID:{:#?})",
+                        p.port_name, info.vid, info.product
+                    )
                 }
-            }).collect()
-        }
+                SerialPortType::BluetoothPort => {
+                    format!("{} (Bluetooth)", p.port_name)
+                }
+                SerialPortType::PciPort => {
+                    format!("{} (PCI)", p.port_name)
+                }
+                SerialPortType::Unknown => {
+                    format!("{} (Unknown)", p.port_name)
+                }
+            })
+            .collect(),
         Err(e) => {
             eprintln!("Error listing ports: {:?}", e);
             vec![]
         }
     }
+}
+
+pub fn connect(port_name: &str) -> Result<Box<dyn SerialPort>, Box<dyn std::error::Error>> {
+    let port = serialport::new(port_name, 9600)
+        .timeout(Duration::from_millis(2000))
+        .open()?;
+    Ok(port)
 }
