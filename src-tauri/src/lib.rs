@@ -126,7 +126,7 @@ async fn send_command(app: AppHandle, cmd: String) -> Result<(), String> {
     let mut guard = state.bt_conn.lock().unwrap();
 
     if let Some(port) = guard.as_mut() {
-        port.write_all(json.as_bytes())
+        port.write_all(format!("{}\n", json).as_bytes())
             .map_err(|e| format!("Write failed: {}", e))?;
         Ok(())
     } else {
