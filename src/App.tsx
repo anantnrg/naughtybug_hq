@@ -27,7 +27,8 @@ function App() {
     { level: "INFO", text: "Not connected to NaughtyBug." },
   ]);
   const [showConnectModal, setShowConnectModal] = createSignal(true);
-  const [ports, setPorts] = createSignal<string[]>([]);
+  const [ports, setPorts] = createSignal<string[]>(["COM1", "COM2"]);
+  const [showPortsModal, setShowPortsModal] = createSignal(false);
   const [selectedPort, setSelectedPort] = createSignal("");
 
   // gait params (store individually)
@@ -273,15 +274,54 @@ function App() {
         <div
           class="w-screen h-screen fixed left-0 top-0 z-20 flex items-center justify-center
                  bg-bg/90 transition-opacity duration-300 ease-out animate-fadeIn"
+          onClick={() => setShowConnectModal(false)}
         >
           <div
-            class="w-40 h-40 bg-white rounded shadow-lg transform transition-transform duration-300 ease-out animate-scaleIn
-                   flex items-center justify-center"
+            class="w-80 h-auto bg-bg border border-border shadow-lg transform transition-transform duration-300 ease-out animate-scaleIn
+                   flex flex-col items-center justify-center p-3 gap-y-8"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowPortsModal(false);
+            }}
           >
-            <div
-              class="w-4 h-4 bg-red-500 cursor-pointer"
-              onClick={() => setShowConnectModal(false)}
-            ></div>
+            <div class="w-full h-12 flex gap-4">
+              <button class="w-24 h-full px-2 flex items-center justify-center border border-border text-text tracking-wider text-lg uppercase hover:bg-primary hover:text-bg transition-all duration-300 shrink-0 active:outline-0">
+                Scan
+              </button>
+              <div
+                class="w-full h-full border border-border flex items-center justify-center pl-3 pr-2 relative"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowPortsModal(!showPortsModal());
+                }}
+              >
+                <span class="text-text/60 text-base tracking-wider w-full">
+                  {selectedPort() === "" ? "Select a COM port" : selectedPort()}
+                </span>
+                <ArrowDown class="w-4 h-4 text-text" />
+                {showPortsModal() ? (
+                  <div class="absolute w-full h-auto border border-border bg-bg top-full mt-2 left-0">
+                    <For each={ports()}>
+                      {(item) => (
+                        <div
+                          class="w-full h-10 flex hover:bg-primary/20 transition-all duration-300 text-text font-semibold tracking-wider items-center justify-start px-4"
+                          onClick={() => setSelectedPort(item)}
+                        >
+                          {item}
+                        </div>
+                      )}
+                    </For>
+                  </div>
+                ) : (
+                  ""
+                )}
+              </div>
+            </div>
+            <div class="w-full h-14">
+              <button class="w-full h-full border border-border text-text tracking-widest text-xl uppercase flex items-center justify-center hover:bg-primary hover:text-bg transition-all duration-300  active:outline-0">
+                Connect
+              </button>
+            </div>
           </div>
         </div>
       )}
