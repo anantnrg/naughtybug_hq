@@ -24,7 +24,7 @@ function App() {
   const [tab, setTab] = createSignal("controls");
   const [shiftPressed, setShiftPressed] = createSignal(false);
   const [logs, setLogs] = createSignal([
-    { level: "INFO", text: "Not connected to NaughtyBug." },
+    { level: "INFO", text: "Not connected to AN-X8 MK III." },
   ]);
   const [showConnectModal, setShowConnectModal] = createSignal(false);
   const [ports, setPorts] = createSignal<Port[]>([]);
@@ -248,6 +248,10 @@ function App() {
     }
   };
 
+  onMount(async () => {
+    await invoke("is_bt_connected");
+  });
+
   return (
     <main class="bg-bg h-screen w-screen flex flex-col p-3 items-center justify-center gap-y-3 overflow-hidden">
       {/* HEADER */}
@@ -269,9 +273,15 @@ function App() {
             PROGRAMMING
           </div>
         </div>
-        <div onClick={() => (!connected() ? setShowConnectModal(true) : {})}>
+        <div
+          onClick={async () =>
+            !connected()
+              ? setShowConnectModal(true)
+              : await invoke("disconnect_bt")
+          }
+        >
           {connected() ? (
-            <span class="text-lg text-heading uppercase flex gap-x-1 items-center justify-center">
+            <span class="text-lg text-info uppercase flex gap-x-1 items-center justify-center">
               <ConnectedIcon class="w-5" />
               <span>Connected [{selectedPort()}]</span>
             </span>
@@ -686,10 +696,21 @@ function App() {
 
           {/* RIGHT COLUMN */}
           <div class="w-2/5 h-full flex flex-col gap-y-3 overflow-hidden">
-            <Panel
-              title="Actions"
-              class="h-1/2 flex flex-col justify-between"
-            ></Panel>
+            <Panel title="Actions" class="h-1/2 flex justify-between">
+              <div class="w-full h-full grid grid-cols-2 list-none p-4">
+                <button
+                  class="action-btn hover:bg-primary/40 hover:text-primary transition-all duration-300"
+                  onClick={() => {
+                    sendCommand("leg 0 dn");
+                    sendCommand("leg 1 dn");
+                    sendCommand("leg 2 dn");
+                    sendCommand("leg 3 dn");
+                  }}
+                >
+                  Sit
+                </button>
+              </div>
+            </Panel>
 
             <Panel
               title="Command Uplink"
@@ -737,67 +758,96 @@ function App() {
       ) : (
         <div class="w-full h-full flex flex-col gap-3 overflow-hidden">
           <div class="w-full h-1/2 flex shrink-0 gap-3">
-            <For each={["fl", "fr", "bl", "br"]}>
-              {(item) => (
-                <Panel
-                  title={
-                    {
-                      fl: "Front-Left",
-                      fr: "Front-Right",
-                      bl: "Back-Left",
-                      br: "Back-Right",
-                    }[item]
-                  }
-                  title_center={true}
-                >
-                  <div class="flex flex-col items-center gap-3 w-full h-full p-2">
+            <For each={["0", "2", "1", "3"]}>
+              {(item) => {
+                const [x, setX] = createSignal("");
+                const [y, setY] = createSignal("");
+                const [z, setZ] = createSignal("");
+
+                return (
+                  <Panel
+                    title={
+                      {
+                        0: "Front-Left",
+                        2: "Front-Right",
+                        1: "Back-Left",
+                        3: "Back-Right",
+                      }[item]
+                    }
+                    title_center={true}
+                  >
                     <div class="flex flex-col items-center gap-3 w-full h-full p-2">
-                      {/* 2x2 GRID */}
-                      <div class="grid grid-cols-2 gap-2 w-full">
-                        <button class="control-btn w-full h-14 flex items-center justify-center">
-                          Up
-                        </button>
-                        <button class="control-btn w-full h-14 flex items-center justify-center">
-                          Forward
-                        </button>
+                      <div class="flex flex-col items-center gap-3 w-full h-full p-2">
+                        {/* 2x2 GRID */}
+                        <div class="grid grid-cols-2 gap-2 w-full">
+                          <button
+                            class="control-btn w-full h-14 flex items-center justify-center"
+                            onClick={() => sendCommand(`leg ${item} up`)}
+                          >
+                            Up
+                          </button>
+                          <button
+                            class="control-btn w-full h-14 flex items-center justify-center"
+                            onClick={() => sendCommand(`leg ${item} mf`)}
+                          >
+                            Forward
+                          </button>
 
-                        <button class="control-btn w-full h-14 flex items-center justify-center">
-                          Down
-                        </button>
-                        <button class="control-btn w-full h-14 flex items-center justify-center">
-                          Back
-                        </button>
-                      </div>
+                          <button
+                            class="control-btn w-full h-14 flex items-center justify-center"
+                            onClick={() => sendCommand(`leg ${item} dn`)}
+                          >
+                            Down
+                          </button>
+                          <button
+                            class="control-btn w-full h-14 flex items-center justify-center"
+                            onClick={() => sendCommand(`leg ${item} bk`)}
+                          >
+                            Back
+                          </button>
+                        </div>
 
-                      {/* XYZ INPUTS */}
-                      <div class="flex gap-2 w-full">
-                        <input
-                          class="input w-full h-10 text-center outline-0 active:border-heading"
-                          placeholder="X"
-                        />
-                        <input
-                          class="input w-full h-10 text-center outline-0"
-                          placeholder="Y"
-                        />
-                        <input
-                          class="input w-full h-10 text-center outline-0"
-                          placeholder="Z"
-                        />
-                      </div>
+                        {/* XYZ INPUTS */}
+                        <div class="flex gap-2 w-full">
+                          <input
+                            class="input w-full h-10 text-center outline-0 active:border-heading"
+                            placeholder="X"
+                            onInput={(e) => setX(e.currentTarget.value)}
+                          />
+                          <input
+                            class="input w-full h-10 text-center outline-0"
+                            placeholder="Y"
+                            onInput={(e) => setY(e.currentTarget.value)}
+                          />
+                          <input
+                            class="input w-full h-10 text-center outline-0"
+                            placeholder="Z"
+                            onInput={(e) => setZ(e.currentTarget.value)}
+                          />
+                        </div>
 
-                      {/* ACTION BUTTONS */}
-                      <div class="flex gap-3 w-full h-14">
-                        <button class="action-btn w-full h-full text-xs">
-                          Mid
-                        </button>
-                        <button class="action-btn w-full h-full text-xs">
-                          Go XYZ
-                        </button>
+                        {/* ACTION BUTTONS */}
+                        <div class="flex gap-3 w-full h-14">
+                          <button
+                            class="control-btn w-full h-14 flex items-center justify-center"
+                            onClick={() => sendCommand(`leg ${item} mid`)}
+                          >
+                            Mid
+                          </button>
+                          <button
+                            class="control-btn w-full h-14 flex items-center justify-center"
+                            onClick={() =>
+                              sendCommand(`leg ${item} ${x()} ${y()} ${z()}`)
+                            }
+                          >
+                            Go XYZ
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </Panel>
-              )}
+                  </Panel>
+                );
+              }}
             </For>
           </div>
           <div class="w-full h-full flex gap-3">

@@ -109,6 +109,49 @@ fn parse_command(input: &str, app: AppHandle) -> Result<SendPacket, String> {
             cmd: action,
             params,
         }),
+        "leg" => {
+            // expect: leg <id> <action|x y z>
+            if let Some(id_str) = parts.next() {
+                if let Ok(id) = id_str.parse::<i64>() {
+                    params.insert("id".to_string(), Value::Number(id.into()));
+                }
+            }
+
+            if let Some(next) = parts.next() {
+                // if it's one of the action keywords
+                match next {
+                    "up" | "dn" | "mf" | "bk" | "mid" => {
+                        params.insert("action".to_string(), Value::String(next.to_string()));
+                    }
+                    // otherwise, try to parse as x y z floats
+                    _ => {
+                        let x = next.parse::<f64>().ok();
+                        let y = parts.next().and_then(|s| s.parse::<f64>().ok());
+                        let z = parts.next().and_then(|s| s.parse::<f64>().ok());
+                        if let Some(xv) = x {
+                            params.insert("x".to_string(), Value::Number(
+                                serde_json::Number::from_f64(xv).unwrap()
+                            ));
+                        }
+                        if let Some(yv) = y {
+                            params.insert("y".to_string(), Value::Number(
+                                serde_json::Number::from_f64(yv).unwrap()
+                            ));
+                        }
+                        if let Some(zv) = z {
+                            params.insert("z".to_string(), Value::Number(
+                                serde_json::Number::from_f64(zv).unwrap()
+                            ));
+                        }
+                    }
+                }
+            }
+
+            Ok(SendPacket {
+                cmd: "leg".to_string(),
+                params,
+            })
+        }
         _ => {
             let _ = app.emit("ws_sent_invalid", &action);
             Err("Invalid action.".to_string())
@@ -160,6 +203,30 @@ async fn connect_bt(app: AppHandle, id: String) -> Result<(), String> {
     }
 }
 
+#[tauri::command]
+async fn is_bt_connected(app: tauri::AppHandle) -> Result<bool, String> {
+    let state = app.state::<AppState>();
+    let guard = state.bt_conn.lock().unwrap();
+
+    let connected = guard.is_some();
+    let _ = app.emit("connected", &connected);
+    Ok(connected)
+}
+
+#[tauri::command]
+async fn disconnect_bt(app: tauri::AppHandle) -> Result<(), String> {
+    let state = app.state::<AppState>();
+    let mut guard = state.bt_conn.lock().unwrap();
+
+    if guard.is_some() {
+        let _port = guard.take();
+        let _ = app.emit("connected", false);
+        Ok(())
+    } else {
+        Err("No Bluetooth connection to disconnect".into())
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -172,7 +239,9 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             send_command,
             scan_ports,
-            connect_bt
+            connect_bt,
+            is_bt_connected,
+            disconnect_bt
         ])
         .plugin(tauri_plugin_opener::init())
         .run(tauri::generate_context!())

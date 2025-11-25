@@ -1,5 +1,40 @@
 @import "tailwindcss";
 
+@font-face {
+    font-family: "Rajdhani";
+    src: url("./assets/Rajdhani-Regular.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Rajdhani";
+    src: url("./assets/Rajdhani-Medium.ttf") format("truetype");
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Rajdhani";
+    src: url("./assets/Rajdhani-SemiBold.ttf") format("truetype");
+    font-weight: 600;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Rajdhani";
+    src: url("./assets/Rajdhani-Bold.ttf") format("truetype");
+    font-weight: 700;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Martian Mono";
+    src: url("./assets/martian_mono.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+}
+
 @theme {
     --color-bg: #030405; /* void black */
     --color-panels: #070a0c; /* slightly lifted – cold gunmetal */
@@ -14,7 +49,7 @@
     --color-info: #31748f; /* arctic teal for cyber contrast */
     --color-muted: #4b5d63; /* frosty gray for secondary bits */
 
-    --font-martian: "MartianMono NF";
+    --font-martian: "Martian Mono";
 }
 
 .input {
